@@ -7,7 +7,7 @@ FLEX   := flex
 
 all : $(TARGET)
 
-run : 
+run : $(TARGET)
 	./$(TARGET)
 
 $(TARGET) : $(PARSER).c $(LEXER).c

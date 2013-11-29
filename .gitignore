@@ -1,4 +1,4 @@
-  lisp
-  parser.c
-  parser.h
-  lexer.c
+lisp
+parser.c
+parser.h
+lexer.c
