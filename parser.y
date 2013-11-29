@@ -9,7 +9,7 @@ int interactive;
 int yylex(void); /* yylexのプロトタイプ宣言 */
 
 void yyerror(char* s) {
-   printf("%s\n", s);
+   printf("Error: %s\n", s);
 }
 
 void prompt(){
@@ -39,11 +39,12 @@ expr :  NUMBER        { $$ = $1; }
 %%
 
 int main(int argc, char **argv) {
+  char *p;
   if(argc > 1){
     /* ソースコード読み込み */
     interactive = 0;
     if ((yyin = fopen(argv[1], "r")) == NULL) {
-      printf("Error: can't open file \"%s\".\n",argv[1]);
+      fprintf(stderr,"Error: can't open file \"%s\".\n",argv[1]);
       exit(EXIT_FAILURE);
     }
   }else{

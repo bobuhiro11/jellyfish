@@ -16,5 +16,5 @@ int yywrap() { return 1; }
                                       return yytext[0];
                                     }
 "\n"                                { return EOL; }
-.                                   { yyerror("Error: invalid token."); return EOL; } 
+.                                   { yyerror("invalid token."); return EOL; } 
 %%
