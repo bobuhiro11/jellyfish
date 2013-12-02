@@ -12,7 +12,7 @@ run : $(TARGET)
 	./$(TARGET)
 
 $(TARGET) : $(PARSER).c $(LEXER).c $(MAIN).c
-	$(CC) -o $(TARGET) $(PARSER).c $(LEXER).c $(MAIN).c
+	$(CC) -g -o $(TARGET) $(PARSER).c $(LEXER).c $(MAIN).c
 
 $(PARSER).c : $(PARSER).y
 	$(BISON) -o $(PARSER).c -d $(PARSER).y

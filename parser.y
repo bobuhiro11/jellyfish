@@ -28,18 +28,15 @@ input :
       | input line    {}
       ;
 line  : EOL           { prompt();  }
-      | exp EOL       { printf ("%d\n", ($1->u).integer); prompt(); }
+      | exp EOL       { write_sexp($1); putc('\n',stdout); prompt(); }
       ;
-exp  :  INTEGER       { $$ = integer2sexp($1);}
+exp   : INTEGER       { $$ = integer2sexp($1);}
       | LEFT_PAREN SYMBOL exp exp  RIGHT_PAREN
         { 
-          $$ = (struct s_exp*)malloc(sizeof(struct s_exp));
-          ($$->u).integer = ($3->u).integer + ($4->u).integer;
+	 struct s_exp *p = symbol2sexp($2);
+	 struct s_exp *e = pair2sexp(p, pair2sexp($3, pair2sexp($4,nil)));	
+	 e = eval(e);
+	 $$ = e;
         }
-      /*
-      | '(' '-' exp exp ')' { $$ = $3 - $4; }
-      | '(' '*' exp exp ')' { $$ = $3 * $4; }
-      | '(' '/' exp exp ')' { $$ = $3 / $4; }
-      */
       ;
 %%
