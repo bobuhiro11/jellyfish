@@ -1,40 +1,100 @@
 %{
- /* C宣言部 ─ 動作記述の中で用いる関数の定義や宣言 */
-#define YYSTYPE double  /* トークンの属性の型を宣言 */
+/*
+ * parser.y
+ */
+#define YYSTYPE struct s_exp*      /* type of each grammar */
 #include <stdio.h>
-#include <stdlib.h>           /* exit関数を使うため */
-extern FILE *yyin;  
-int interactive;
+#include <stdlib.h>                /* for exit() */
 
-int yylex(void); /* yylexのプロトタイプ宣言 */
+#define S_EXP_ATOM 1               /* type of s_exp */
+#define S_EXP_PAIR 2
+
+#define ATOM_INTEGER 1             /* type of atom */
+struct atom{                       /* atom */
+  int type;                        /* ATOM_INTEGER */
+  union{
+    int _int;
+  }u;
+};
+
+struct pair{                       /* dotted pair */
+  struct s_exp *car;
+  struct s_exp *cdr;
+};
+
+struct s_exp{                      /* s exception */
+  int type;                        /* S_EXP_ATOM or S_EXP_PAIR */
+  union{
+    struct atom *atom;
+    struct pair *pair;
+  }u;
+} s_exp;
+  
+extern char *yytext;               /* lexer input */
+extern FILE *yyin;                 /* input file */
+int interactive;                   /* true if interactive mode, false otherwise */
+
+int yylex(void);
 
 void yyerror(char* s) {
    printf("Error: %s\n", s);
 }
 
-void prompt(){
+/*
+ * show prompt before input
+ */
+void prompt(){ 
   if(interactive)
     printf(">");
 }
 
 %}
 
-%token NUMBER 
+/*
+ * token
+ */
+%token INTEGER 
+%token STRING
+%token SYMBOL
+%token LEFT_PAREN
+%token RIGHT_PAREN
 %token EOL
+/*
+ * association
+ */
+/*
 %left '+' '-'
 %left '*' '/'
+*/
 %%
-input :   /* 空 */
+/*
+ * Grammar
+ */
+input :   
       | input line    {}
       ;
 line  : EOL           { prompt();  }
-      | expr EOL      { printf ("%f\n", $1); prompt(); }
+      | exp EOL       { printf ("%d\n", ($1->u.atom)->u._int); prompt(); }
       ;
-expr :  NUMBER        { $$ = $1; }
-      | '(' '+' expr expr ')' { $$ = $3 + $4; }
-      | '(' '-' expr expr ')' { $$ = $3 - $4; }
-      | '(' '*' expr expr ')' { $$ = $3 * $4; }
-      | '(' '/' expr expr ')' { $$ = $3 / $4; }
+exp  :  INTEGER        
+        { 
+          $$ = (struct s_exp*)malloc(sizeof(struct s_exp));
+          struct atom *a = malloc(sizeof(struct atom));
+          ($$->u).atom = a;
+          (a->u)._int = (int)$1;
+        }
+      | '(' '+' exp exp ')' 
+        { 
+          $$ = (struct s_exp*)malloc(sizeof(struct s_exp));
+          struct atom *a = malloc(sizeof(struct atom));
+          ($$->u).atom = a;
+          (a->u)._int = ($3->u.atom)->u._int + ($4->u.atom)->u._int;
+        }
+      /*
+      | '(' '-' exp exp ')' { $$ = $3 - $4; }
+      | '(' '*' exp exp ')' { $$ = $3 * $4; }
+      | '(' '/' exp exp ')' { $$ = $3 / $4; }
+      */
       ;
 %%
 
