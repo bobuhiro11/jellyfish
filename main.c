@@ -24,6 +24,26 @@ int yywrap() {
 	return 1; 
 }
 
+/*
+ * create s_exp from integer
+ */
+struct s_exp *integer2sexp(int i){
+	struct s_exp *e =  (struct s_exp*)malloc(sizeof(struct s_exp));
+	e->type = S_EXP_INTEGER;
+	(e->u).integer = i;
+	return e;
+}
+
+/*
+ * create s_exp from character
+ */
+struct s_exp *character2sexp(char c){
+	struct s_exp *e =  (struct s_exp*)malloc(sizeof(struct s_exp));
+	e->type = S_EXP_CHARACTER;
+	(e->u).character = c;
+	return e;
+}
+
 int main(int argc, char **argv) {
 	char *p;
 	if(argc > 1){

@@ -10,26 +10,20 @@
 /***************************************************
  * structure definition
  ***************************************************/
-#define ATOM_INTEGER 1
-struct atom{        
-  int type; 
-  union{
-    int _int;
-  }u;
-};
-
 struct pair{
   struct s_exp *car;
   struct s_exp *cdr;
 };
 
-#define S_EXP_ATOM 1             
-#define S_EXP_PAIR 2
+#define S_EXP_PAIR 	1
+#define S_EXP_INTEGER	2
+#define S_EXP_CHARACTER	3
 struct s_exp{                   
   int type;
   union{
-    struct atom *atom;
     struct pair *pair;
+    int integer;
+    char character;
   }u;
 };
 
@@ -40,6 +34,8 @@ int yylex(void);
 void yyerror(char* s);
 void prompt();
 int yywrap();
+struct s_exp *integer2sexp(int i);
+struct s_exp *character2sexp(char c);
 
 /***************************************************
  * external variable definition

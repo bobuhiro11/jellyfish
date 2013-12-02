@@ -7,15 +7,15 @@
 /* type of grammar,token */
 %union {
   int t_int;
-  double t_double;
-  char *t_string;
+  char t_char;
+  char *t_symbol;
   struct s_exp *t_sexp;
 }
 
 /* token */
 %token <t_int>    INTEGER 
-%token <t_string> STRING
-%token <t_string> SYMBOL
+%token <t_char>   CHAR
+%token <t_symbol> SYMBOL
 %token LEFT_PAREN
 %token RIGHT_PAREN
 %token EOL
@@ -28,21 +28,13 @@ input :
       | input line    {}
       ;
 line  : EOL           { prompt();  }
-      | exp EOL       { printf ("%d\n", ($1->u.atom)->u._int); prompt(); }
+      | exp EOL       { printf ("%d\n", ($1->u).integer); prompt(); }
       ;
-exp  :  INTEGER        
+exp  :  INTEGER       { $$ = integer2sexp($1);}
+      | LEFT_PAREN SYMBOL exp exp  RIGHT_PAREN
         { 
           $$ = (struct s_exp*)malloc(sizeof(struct s_exp));
-          struct atom *a = malloc(sizeof(struct atom));
-          ($$->u).atom = a;
-          (a->u)._int = (int)$1;
-        }
-      | '(' '+' exp exp ')' 
-        { 
-          $$ = (struct s_exp*)malloc(sizeof(struct s_exp));
-          struct atom *a = malloc(sizeof(struct atom));
-          ($$->u).atom = a;
-          (a->u)._int = ($3->u.atom)->u._int + ($4->u.atom)->u._int;
+          ($$->u).integer = ($3->u).integer + ($4->u).integer;
         }
       /*
       | '(' '-' exp exp ')' { $$ = $3 - $4; }
