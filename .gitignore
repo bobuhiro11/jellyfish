@@ -1,4 +1,5 @@
 jellyfish
+jellyfish.dSYM
 parser.c
 parser.h
 lexer.c
