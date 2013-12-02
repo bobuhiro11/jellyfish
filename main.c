@@ -60,9 +60,8 @@ struct s_exp *symbol2sexp(char *s){
 struct s_exp *pair2sexp(struct s_exp *car, struct s_exp *cdr){
 	struct s_exp *e =  (struct s_exp*)malloc(sizeof(struct s_exp));
 	e->type = S_EXP_PAIR;
-	(e->u).pair = (struct pair*)malloc(sizeof(struct pair));
-	(e->u).pair->car = car;
-	(e->u).pair->cdr = cdr;
+	(e->u).pair.car = car;
+	(e->u).pair.cdr = cdr;
 	return e;
 }
 
@@ -77,9 +76,9 @@ void write_sexp(struct s_exp *e){
 		printf("%s",e->u.symbol);
 	}else{
 		printf("(");
-		write_sexp(e->u.pair->car);
+		write_sexp(e->u.pair.car);
 		printf(" . ");
-		write_sexp(e->u.pair->cdr);
+		write_sexp(e->u.pair.cdr);
 		printf(")");
 	}
 }
@@ -92,10 +91,9 @@ static struct s_exp *add(struct s_exp *args){
 	struct s_exp *q,*t;
 	int s = 0;
 	while(p != nil){
-		q = eval(p->u.pair->car);
+		q = eval(p->u.pair.car);
 		s += q->u.integer;
-		t = p->u.pair->cdr;
-		free(p->u.pair);
+		t = p->u.pair.cdr;
 		free(p);
 		p = t;
 	}
@@ -124,9 +122,8 @@ struct s_exp *eval(struct s_exp *e){
 		/* fix http://melborne.github.io/2010/11/10/Ruby-Lisp/ */
 		return e;
 	}else{ 						/* function apply */
-		struct s_exp *func = e->u.pair->car;
-		struct s_exp *args = e->u.pair->cdr;
-		free(e->u.pair);
+		struct s_exp *func = e->u.pair.car;
+		struct s_exp *args = e->u.pair.cdr;
 		free(e);
 		return apply(func,args);
 	}

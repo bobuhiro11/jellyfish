@@ -23,7 +23,7 @@ struct pair{
 struct s_exp{                   
   int type;
   union{
-    struct pair *pair;
+    struct pair pair;
     int integer;
     char character;
     char *symbol;
