@@ -1,4 +1,4 @@
-lisp
+jellyfish
 parser.c
 parser.h
 lexer.c

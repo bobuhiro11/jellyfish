@@ -1,75 +1,29 @@
 %{
-/*
+/**********************************************
  * parser.y
- */
-#define YYSTYPE struct s_exp*      /* type of each grammar */
-#include <stdio.h>
-#include <stdlib.h>                /* for exit() */
-
-#define S_EXP_ATOM 1               /* type of s_exp */
-#define S_EXP_PAIR 2
-
-#define ATOM_INTEGER 1             /* type of atom */
-struct atom{                       /* atom */
-  int type;                        /* ATOM_INTEGER */
-  union{
-    int _int;
-  }u;
-};
-
-struct pair{                       /* dotted pair */
-  struct s_exp *car;
-  struct s_exp *cdr;
-};
-
-struct s_exp{                      /* s exception */
-  int type;                        /* S_EXP_ATOM or S_EXP_PAIR */
-  union{
-    struct atom *atom;
-    struct pair *pair;
-  }u;
-} s_exp;
-  
-extern char *yytext;               /* lexer input */
-extern FILE *yyin;                 /* input file */
-int interactive;                   /* true if interactive mode, false otherwise */
-
-int yylex(void);
-
-void yyerror(char* s) {
-   printf("Error: %s\n", s);
-}
-
-/*
- * show prompt before input
- */
-void prompt(){ 
-  if(interactive)
-    printf(">");
-}
-
+ **********************************************/
+#include "common.h"  
 %}
+/* type of grammar,token */
+%union {
+  int t_int;
+  double t_double;
+  char *t_string;
+  struct s_exp *t_sexp;
+}
 
-/*
- * token
- */
-%token INTEGER 
-%token STRING
-%token SYMBOL
+/* token */
+%token <t_int>    INTEGER 
+%token <t_string> STRING
+%token <t_string> SYMBOL
 %token LEFT_PAREN
 %token RIGHT_PAREN
 %token EOL
-/*
- * association
- */
-/*
-%left '+' '-'
-%left '*' '/'
-*/
+
+/* type of grammar */
+%type <t_sexp> exp
+
 %%
-/*
- * Grammar
- */
 input :   
       | input line    {}
       ;
@@ -97,22 +51,3 @@ exp  :  INTEGER
       */
       ;
 %%
-
-int main(int argc, char **argv) {
-  char *p;
-  if(argc > 1){
-    /* ソースコード読み込み */
-    interactive = 0;
-    if ((yyin = fopen(argv[1], "r")) == NULL) {
-      fprintf(stderr,"Error: can't open file \"%s\".\n",argv[1]);
-      exit(EXIT_FAILURE);
-    }
-  }else{
-    /* 対話方式 */
-    interactive = 1;
-    yyin = stdin;
-    prompt();
-  }
-  yyparse();
-  return 0;
-}
