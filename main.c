@@ -223,6 +223,32 @@ static struct s_exp *divi(struct s_exp *args){
 }
 
 /*
+ * or function
+ */
+static struct s_exp *or(struct s_exp *args){
+	struct s_exp *p, *q;
+
+	if(args == nil) return sexp_f;
+
+	p = args->u.pair.car;
+	q = args->u.pair.cdr;
+	return (p != sexp_f) ? sexp_t : or(q);
+}
+
+/*
+ * and function
+ */
+static struct s_exp *and(struct s_exp *args){
+	struct s_exp *p, *q;
+
+	if(args == nil) return sexp_t;
+
+	p = args->u.pair.car;
+	q = args->u.pair.cdr;
+	return (p == sexp_f) ? sexp_f : and(q);
+}
+
+/*
  * list function
  */
 static struct s_exp *list(struct s_exp *args){
@@ -308,6 +334,12 @@ struct s_exp *apply(struct s_exp *func, struct s_exp *args){
 	}else if(!strcmp(f_name,"nil?")){
 		p = args->u.pair.car;
 		return (p==nil) ? sexp_t : sexp_f;
+	}else if(!strcmp(f_name,"or")){
+		return or(args);
+	}else if(!strcmp(f_name,"and")){
+		return and(args);
+	}else if(!strcmp(f_name,"not")){
+		return args->u.pair.car == sexp_f ? sexp_t : sexp_f;
 	}
 	fprintf(stderr, "undefied variable %s.",f_name);
 	return nil;
