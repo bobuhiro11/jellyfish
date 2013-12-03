@@ -57,7 +57,7 @@ struct s_exp *symbol2sexp(char *s){
 /*
  * create s_exp from dotted pair
  */
-struct s_exp *pair2sexp(struct s_exp *car, struct s_exp *cdr){
+struct s_exp *cons(struct s_exp *car, struct s_exp *cdr){
 	struct s_exp *e =  (struct s_exp*)malloc(sizeof(struct s_exp));
 	e->type = S_EXP_PAIR;
 	(e->u).pair.car = car;
@@ -65,7 +65,23 @@ struct s_exp *pair2sexp(struct s_exp *car, struct s_exp *cdr){
 	return e;
 }
 
-void write_sexp(struct s_exp *e){
+static void _write_type(struct s_exp *e){
+	if(e == nil)
+		printf("");
+	else if(e->type == S_EXP_INTEGER)
+		printf("<INTEGER>");
+	else if(e->type == S_EXP_CHARACTER)
+		printf("<CHARACTER>");
+	else if(e->type == S_EXP_SYMBOL)
+		printf("<SYMBOL>");
+	else if(e->type == S_EXP_PAIR)
+		printf("<PAIR>");
+}
+
+static void _write_sexp(struct s_exp *e, int d){
+	if(d==0)
+		_write_type(e);
+
 	if(e == nil){
 		printf("nil");
 	}else if(e->type == S_EXP_INTEGER){
@@ -76,11 +92,15 @@ void write_sexp(struct s_exp *e){
 		printf("%s",e->u.symbol);
 	}else{
 		printf("(");
-		write_sexp(e->u.pair.car);
+		_write_sexp(e->u.pair.car,d+1);
 		printf(" . ");
-		write_sexp(e->u.pair.cdr);
+		_write_sexp(e->u.pair.cdr,d+1);
 		printf(")");
 	}
+}
+
+void write_sexp(struct s_exp *e){
+	_write_sexp(e,0);
 }
 
 /*
@@ -103,29 +123,32 @@ static struct s_exp *add(struct s_exp *args){
 /*
  * eval s expression
  *
- * 	1. atom
- * 	2. special operation
- * 	3. function
+ * 	(1) atom
+ * 	(2) special operation
+ * 	(3) function
  *
  */
 struct s_exp *eval(struct s_exp *e){
-	if(e == nil){					/* nil */
+	if(e == nil){					/* (1) nil */
 		return nil;
-	}else if(e->type == S_EXP_INTEGER){		/* integer */
+	}else if(e->type == S_EXP_INTEGER){		/* (1) integer */
 		return e;
-	}else if(e->type == S_EXP_CHARACTER){		/* character */
+	}else if(e->type == S_EXP_CHARACTER){		/* (1) character */
 		return e;
-	}else if(e->type == S_EXP_SYMBOL){		/* symbol */
+	}else if(e->type == S_EXP_SYMBOL){		/* (1) symbol */
 		/* fix */
 		return e;
-	}else if(!strcmp(e->u.symbol, "quote")){	/* so: (quote exp) */
+	}else{
 		/* fix http://melborne.github.io/2010/11/10/Ruby-Lisp/ */
-		return e;
-	}else{ 						/* function apply */
-		struct s_exp *func = e->u.pair.car;
-		struct s_exp *args = e->u.pair.cdr;
-		free(e);
-		return apply(func,args);
+		struct s_exp *car = e->u.pair.car;
+		struct s_exp *cdr = e->u.pair.cdr;
+		if(!strcmp(car->u.symbol, "quote")){	/* (2) (quote exp) */
+			return cdr;
+		}
+		else{ 					/* (3) function apply */
+			free(e);
+			return apply(car,cdr);
+		}
 	}
 }
 

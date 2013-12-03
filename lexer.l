@@ -13,7 +13,14 @@
 "\n"                                { return EOL; }
 "."                                 { return DOT; }
 "nil"                               { return NIL; }
-.                                   { 
+"quote"                             { 
+  int n = strlen(yytext);
+  char *p = (char*)malloc(n+1);
+  yylval.t_symbol = p;
+  strcpy(yylval.t_symbol,yytext);
+  return SPECIAL; 
+ }
+[a-z|\+]+                           { 
   int n = strlen(yytext);
   char *p = (char*)malloc(n+1);
   yylval.t_symbol = p;

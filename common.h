@@ -41,7 +41,7 @@ void write_sexp(struct s_exp *e);
 struct s_exp *integer2sexp(int i);
 struct s_exp *character2sexp(char c);
 struct s_exp *symbol2sexp(char *s);
-struct s_exp *pair2sexp(struct s_exp *car, struct s_exp *cdr);
+struct s_exp *cons(struct s_exp *car, struct s_exp *cdr);
 struct s_exp *eval(struct s_exp *e);
 struct s_exp *apply(struct s_exp *func, struct s_exp *args);
 
