@@ -19,6 +19,8 @@
 %token <t_symbol>   SYMBOL
 %token <t_special>  SPECIAL
 %token NIL
+%token TRUE
+%token FALSE
 %token LEFT_PAREN
 %token RIGHT_PAREN
 %token EOL
@@ -40,6 +42,8 @@ exp     : INTEGER       { $$ = integer2sexp($1);}
         | CHARACTER     { $$ = character2sexp($1);}
         | SYMBOL        { $$ = symbol2sexp($1);}
         | NIL           { $$ = nil;}
+	| TRUE		{ $$ = sexp_t;}
+	| FALSE		{ $$ = sexp_f;}
         | LEFT_PAREN SPECIAL exp_noeval RIGHT_PAREN
           {
               struct s_exp *p = symbol2sexp($2);
@@ -61,6 +65,8 @@ exp_noeval : INTEGER    { $$ = integer2sexp($1);}     /* no evalute s-expression
         | CHARACTER     { $$ = character2sexp($1);}
         | SYMBOL        { $$ = symbol2sexp($1);}
         | NIL           { $$ = nil;}
+	| TRUE		{ $$ = sexp_t;}
+	| FALSE		{ $$ = sexp_f;}
         | LEFT_PAREN members_noeval
           { 
                $$ = $2;

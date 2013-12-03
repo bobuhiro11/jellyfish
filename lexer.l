@@ -12,6 +12,8 @@
 [)]         		                    {	return RIGHT_PAREN; }
 "\n"                                { return EOL; }
 "nil"                               { return NIL; }
+"#t"	                            { return TRUE; }
+"#f"	                            { return FALSE; }
 "quote"                             { 
   int n = strlen(yytext);
   char *p = (char*)malloc(n+1);
@@ -19,7 +21,7 @@
   strcpy(yylval.t_symbol,yytext);
   return SPECIAL; 
  }
-[a-z|\+|\-|\*|\/]+                  { 
+[a-z|\+|\-|\*|\/|?]+               { 
   int n = strlen(yytext);
   char *p = (char*)malloc(n+1);
   yylval.t_symbol = p;

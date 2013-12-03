@@ -80,6 +80,8 @@ static int is_list(struct s_exp *e){
 static void _write_type(struct s_exp *e){
 	if(e == nil)
 		printf("<NIL>");
+	else if(e == sexp_t || e == sexp_f)
+		printf("<BOOLEAN>");
 	else if(e->type == S_EXP_INTEGER)
 		printf("<INTEGER>");
 	else if(e->type == S_EXP_CHARACTER)
@@ -121,6 +123,10 @@ static void _write_sexp(struct s_exp *e, int d){
 
 	if(e == nil){
 		printf("nil");
+	}else if(e == sexp_t){
+		printf("#t");
+	}else if(e == sexp_f){
+		printf("#f");
 	}else if(e->type == S_EXP_INTEGER){
 		printf("%d",e->u.integer);
 	}else if(e->type == S_EXP_CHARACTER){
@@ -227,6 +233,8 @@ static struct s_exp *divi(struct s_exp *args){
 struct s_exp *eval(struct s_exp *e){
 	if(e == nil){					/* (1) nil */
 		return nil;
+	}else if(e == sexp_t || e == sexp_f){		/* (1) boolean */
+		return e;
 	}else if(e->type == S_EXP_INTEGER){		/* (1) integer */
 		return e;
 	}else if(e->type == S_EXP_CHARACTER){		/* (1) character */
@@ -253,7 +261,7 @@ struct s_exp *eval(struct s_exp *e){
  */
 struct s_exp *apply(struct s_exp *func, struct s_exp *args){
 	char *f_name = func->u.symbol;
-	struct s_exp *car, *cdr;
+	struct s_exp *p, *q;
 
 	if(!strcmp(f_name,"+")){
 		return add(args);
@@ -264,16 +272,21 @@ struct s_exp *apply(struct s_exp *func, struct s_exp *args){
 	}else if(!strcmp(f_name,"/")){
 		return divi(args);
 	}else if(!strcmp(f_name,"cons")){
-		car = args->u.pair.car;
-		cdr = (args->u.pair.cdr)->u.pair.car;
-		return cons(car,cdr);
+		p = args->u.pair.car;
+		q = (args->u.pair.cdr)->u.pair.car;
+		return cons(p,q);
 	}else if(!strcmp(f_name,"car")){
-		car = args->u.pair.car;
-		return car->u.pair.car;
+		p = args->u.pair.car;
+		return p->u.pair.car;
 	}else if(!strcmp(f_name,"cdr")){
-		car = args->u.pair.car;
-		return car->u.pair.cdr;
+		p = args->u.pair.car;
+		return p->u.pair.cdr;
+	}else if(!strcmp(f_name,"eq?")){
+		p = args->u.pair.car;
+		q = args->u.pair.cdr->u.pair.car;
+		return (p==q) ? sexp_t : sexp_f;
 	}
+	fprintf(stderr, "undefied variable %s.",f_name);
 	return nil;
 }
 
