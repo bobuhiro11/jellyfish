@@ -285,6 +285,15 @@ struct s_exp *apply(struct s_exp *func, struct s_exp *args){
 		p = args->u.pair.car;
 		q = args->u.pair.cdr->u.pair.car;
 		return (p==q) ? sexp_t : sexp_f;
+	}else if(!strcmp(f_name,"atom?")){
+		p = args->u.pair.car;
+		if(p==nil || p==sexp_t || p==sexp_f 
+			|| p->type == S_EXP_INTEGER 
+			|| p->type == S_EXP_CHARACTER
+			|| p->type == S_EXP_SYMBOL)
+			return sexp_t;
+		else
+			return sexp_f;
 	}
 	fprintf(stderr, "undefied variable %s.",f_name);
 	return nil;
