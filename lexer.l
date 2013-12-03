@@ -11,7 +11,6 @@
 [(]                  		            { return LEFT_PAREN; }
 [)]         		                    {	return RIGHT_PAREN; }
 "\n"                                { return EOL; }
-"."                                 { return DOT; }
 "nil"                               { return NIL; }
 "quote"                             { 
   int n = strlen(yytext);

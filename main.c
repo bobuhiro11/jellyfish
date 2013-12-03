@@ -87,7 +87,10 @@ static void _write_type(struct s_exp *e){
 	else if(e->type == S_EXP_SYMBOL)
 		printf("<SYMBOL>");
 	else if(e->type == S_EXP_PAIR)
-		printf("<PAIR>");
+		if(is_list(e))
+			printf("<LIST>");
+		else
+			printf("<PAIR>");
 }
 
 static void _write_sexp(struct s_exp *e, int d);
