@@ -60,7 +60,7 @@ exp_noeval : INTEGER    { $$ = integer2sexp($1);}     /* no evalute s-expression
         | CHARACTER     { $$ = character2sexp($1);}
         | SYMBOL        { $$ = symbol2sexp($1);}
         | NIL           { $$ = nil;}
-        | LEFT_PAREN exp DOT exp RIGHT_PAREN
+        | LEFT_PAREN exp_noeval DOT exp_noeval RIGHT_PAREN
           {
                $$ = cons($2,$4);
           }
