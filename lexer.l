@@ -21,7 +21,7 @@
   strcpy(yylval.t_symbol,yytext);
   return SPECIAL; 
  }
-[a-z|\+|\-|\*|\/|?]+               { 
+[a-z|\+|\-|\*|\/|?|=|>|<]+          { 
   int n = strlen(yytext);
   char *p = (char*)malloc(n+1);
   yylval.t_symbol = p;

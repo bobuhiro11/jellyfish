@@ -319,6 +319,11 @@ struct s_exp *apply(struct s_exp *func, struct s_exp *args){
 	char *f_name = func->u.symbol;
 	struct s_exp *p, *q;
 
+	/* p: args[0], q: args[1] */
+	p = args->u.pair.car;
+	if(args->u.pair.cdr != nil)
+		q = args->u.pair.cdr->u.pair.car;
+
 	if(!strcmp(f_name,"+")){
 		return add(args);
 	}else if(!strcmp(f_name,"-")){
@@ -328,23 +333,16 @@ struct s_exp *apply(struct s_exp *func, struct s_exp *args){
 	}else if(!strcmp(f_name,"/")){
 		return divi(args);
 	}else if(!strcmp(f_name,"cons")){
-		p = args->u.pair.car;
-		q = (args->u.pair.cdr)->u.pair.car;
 		return cons(p,q);
 	}else if(!strcmp(f_name,"car")){
-		p = args->u.pair.car;
 		return p->u.pair.car;
 	}else if(!strcmp(f_name,"cdr")){
-		p = args->u.pair.car;
 		return p->u.pair.cdr;
 	}else if(!strcmp(f_name,"list")){
 		return list(args);
 	}else if(!strcmp(f_name,"eq?")){
-		p = args->u.pair.car;
-		q = args->u.pair.cdr->u.pair.car;
 		return (p==q) ? sexp_t : sexp_f;
 	}else if(!strcmp(f_name,"atom?")){
-		p = args->u.pair.car;
 		if(p==nil || p==sexp_t || p==sexp_f 
 			|| p->type == S_EXP_INTEGER 
 			|| p->type == S_EXP_CHARACTER
@@ -353,14 +351,23 @@ struct s_exp *apply(struct s_exp *func, struct s_exp *args){
 		else
 			return sexp_f;
 	}else if(!strcmp(f_name,"nil?")){
-		p = args->u.pair.car;
 		return (p==nil) ? sexp_t : sexp_f;
 	}else if(!strcmp(f_name,"or")){
 		return or(args);
 	}else if(!strcmp(f_name,"and")){
 		return and(args);
 	}else if(!strcmp(f_name,"not")){
-		return args->u.pair.car == sexp_f ? sexp_t : sexp_f;
+		return p == sexp_f ? sexp_t : sexp_f;
+	}else if(!strcmp(f_name,"=")){
+		return (p->u.integer == q->u.integer) ? sexp_t : sexp_f;
+	}else if(!strcmp(f_name,">")){
+		return (p->u.integer > q->u.integer) ? sexp_t : sexp_f;
+	}else if(!strcmp(f_name,"<")){
+		return (p->u.integer < q->u.integer) ? sexp_t : sexp_f;
+	}else if(!strcmp(f_name,"<=")){
+		return (p->u.integer <= q->u.integer) ? sexp_t : sexp_f;
+	}else if(!strcmp(f_name,">=")){
+		return (p->u.integer >= q->u.integer) ? sexp_t : sexp_f;
 	}
 	fprintf(stderr, "undefied variable %s.",f_name);
 	return nil;
