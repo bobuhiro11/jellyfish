@@ -235,7 +235,6 @@ struct s_exp *eval(struct s_exp *e){
 		/* fix http://melborne.github.io/2010/11/10/Ruby-Lisp/ */
 		struct s_exp *car = e->u.pair.car;
 		struct s_exp *cdr = e->u.pair.cdr;
-		printf("main 238: %s\n",car->u.symbol);
 		if(!strcmp(car->u.symbol, "quote")){	/* (2) (quote exp) */
 			return cdr;
 		}
@@ -251,6 +250,8 @@ struct s_exp *eval(struct s_exp *e){
  */
 struct s_exp *apply(struct s_exp *func, struct s_exp *args){
 	char *f_name = func->u.symbol;
+	struct s_exp *car, *cdr;
+
 	if(!strcmp(f_name,"+")){
 		return add(args);
 	}else if(!strcmp(f_name,"-")){
@@ -259,6 +260,16 @@ struct s_exp *apply(struct s_exp *func, struct s_exp *args){
 		return multi(args);
 	}else if(!strcmp(f_name,"/")){
 		return divi(args);
+	}else if(!strcmp(f_name,"cons")){
+		car = args->u.pair.car;
+		cdr = (args->u.pair.cdr)->u.pair.car;
+		return cons(car,cdr);
+	}else if(!strcmp(f_name,"car")){
+		car = args->u.pair.car;
+		return car->u.pair.car;
+	}else if(!strcmp(f_name,"cdr")){
+		car = args->u.pair.car;
+		return car->u.pair.cdr;
 	}
 	return nil;
 }

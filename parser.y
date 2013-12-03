@@ -26,8 +26,9 @@
 
 /* type of grammar */
 %type <t_sexp> exp
-%type <t_sexp> exp_noeval
 %type <t_sexp> members
+%type <t_sexp> exp_noeval
+%type <t_sexp> members_noeval
 
 %%
 input   :
@@ -56,6 +57,12 @@ exp     : INTEGER       { $$ = integer2sexp($1);}
              $$ = eval($2);
           }
         ;
+members : RIGHT_PAREN  { $$ = nil; }
+        | exp members  
+          {
+            $$ = cons($1,$2);
+          }
+        ;
 exp_noeval : INTEGER    { $$ = integer2sexp($1);}     /* no evalute s-expression for special operator */
         | CHARACTER     { $$ = character2sexp($1);}
         | SYMBOL        { $$ = symbol2sexp($1);}
@@ -65,13 +72,13 @@ exp_noeval : INTEGER    { $$ = integer2sexp($1);}     /* no evalute s-expression
               printf("aaa");
                $$ = cons($2,$4);
           }
-        | LEFT_PAREN members
+        | LEFT_PAREN members_noeval
           { 
                $$ = $2;
           }
         ;
-members : RIGHT_PAREN  { $$ = nil; }
-        | exp_noeval members  
+members_noeval : RIGHT_PAREN  { $$ = nil; }
+        | exp_noeval members_noeval
           {
             $$ = cons($1,$2);
           }
