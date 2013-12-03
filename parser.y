@@ -70,11 +70,21 @@ exp_noeval : INTEGER    { $$ = integer2sexp($1);}     /* no evalute s-expression
         | CHARACTER     { $$ = character2sexp($1);}
         | SYMBOL        { $$ = symbol2sexp($1);}
         | NIL           { $$ = nil;}
-	| TRUE		{ $$ = sexp_t;}
-	| FALSE		{ $$ = sexp_f;}
+	      | TRUE		      { $$ = sexp_t;}
+        | FALSE		      { $$ = sexp_f;}
+        | QUOTE exp_noeval
+          {
+              $$ = $2;
+          }
         | LEFT_PAREN members_noeval
           { 
                $$ = $2;
+          }
+        | LEFT_PAREN SPECIAL members_noeval
+          {
+              struct s_exp *p = symbol2sexp($2);
+              struct s_exp *e = cons(p,$3);
+              $$ = e;
           }
         ;
 members_noeval : RIGHT_PAREN  { $$ = nil; }

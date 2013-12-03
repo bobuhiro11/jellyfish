@@ -326,6 +326,7 @@ struct s_exp *apply(struct s_exp *func, struct s_exp *args){
 	if(args->u.pair.cdr != nil)
 		q = args->u.pair.cdr->u.pair.car;
 
+
 	if(!strcmp(f_name,"+")){
 		return add(args);
 	}else if(!strcmp(f_name,"-")){
@@ -342,6 +343,8 @@ struct s_exp *apply(struct s_exp *func, struct s_exp *args){
 		return p->u.pair.cdr;
 	}else if(!strcmp(f_name,"list")){
 		return list(args);
+	}else if(!strcmp(f_name,"eval")){
+		return eval(p);
 	}else if(!strcmp(f_name,"eq?")){
 		return (p==q) ? sexp_t : sexp_f;
 	}else if(!strcmp(f_name,"atom?")){
