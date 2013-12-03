@@ -258,6 +258,20 @@ static struct s_exp *list(struct s_exp *args){
 }
 
 /*
+ * if special operation
+ */
+static struct s_exp *_if(struct s_exp *args){
+	struct s_exp *p, *q, *r;
+	p = args->u.pair.car;
+	q = args->u.pair.cdr->u.pair.car;
+	r = args->u.pair.cdr->u.pair.cdr->u.pair.car;
+	if(eval(p) == sexp_f)
+		return eval(r);
+	else
+		return eval(q);
+}
+
+/*
  * eval s expression
  *
  * 	(1) atom
@@ -282,7 +296,9 @@ struct s_exp *eval(struct s_exp *e){
 		struct s_exp *car = e->u.pair.car;
 		struct s_exp *cdr = e->u.pair.cdr;
 		if(!strcmp(car->u.symbol, "quote")){	/* (2) (quote exp) */
-			return cdr;
+			return cdr->u.pair.car;
+		}else if(!strcmp(car->u.symbol,"if")){	/* (2) (if expA expB expC) */
+			return _if(cdr);
 		}
 		else{ 					/* (3) function apply */
 			free(e);

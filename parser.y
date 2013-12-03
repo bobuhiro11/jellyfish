@@ -44,7 +44,7 @@ exp     : INTEGER       { $$ = integer2sexp($1);}
         | NIL           { $$ = nil;}
 	| TRUE		{ $$ = sexp_t;}
 	| FALSE		{ $$ = sexp_f;}
-        | LEFT_PAREN SPECIAL exp_noeval RIGHT_PAREN
+        | LEFT_PAREN SPECIAL members_noeval
           {
               struct s_exp *p = symbol2sexp($2);
               struct s_exp *e = cons(p,$3);

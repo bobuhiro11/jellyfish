@@ -14,7 +14,7 @@
 "nil"                               { return NIL; }
 "#t"	                            { return TRUE; }
 "#f"	                            { return FALSE; }
-"quote"                             { 
+"quote"|"if"                        { 
   int n = strlen(yytext);
   char *p = (char*)malloc(n+1);
   yylval.t_symbol = p;
