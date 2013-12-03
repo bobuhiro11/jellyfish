@@ -102,21 +102,22 @@ static void _write_type(struct s_exp *e){
 }
 
 static void _write_sexp(struct s_exp *e, int d);
+
 /*
  * d = 0 if highest position
  *     1 otherwise
  */
 static void _write_list(struct s_exp *e, int d){
-	if(e == nil){
-		printf(")");
-		return;
-	}
-
 	if(d == 0)
-		printf("( ");
+		printf("(");
+
 	_write_sexp(e->u.pair.car,1);
-	printf(" ");
-	_write_list(e->u.pair.cdr,1);
+	if(e->u.pair.cdr == nil){
+		printf(")");
+	}else{
+		printf(" ");
+		_write_list(e->u.pair.cdr,1);
+	}	
 }
 
 /*

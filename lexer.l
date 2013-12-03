@@ -14,6 +14,7 @@
 "nil"                               { return NIL; }
 "#t"	                            { return TRUE; }
 "#f"	                            { return FALSE; }
+"'"	                            { return QUOTE; }
 "quote"|"if"                        { 
   int n = strlen(yytext);
   char *p = (char*)malloc(n+1);

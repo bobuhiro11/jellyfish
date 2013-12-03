@@ -21,6 +21,7 @@
 %token NIL
 %token TRUE
 %token FALSE
+%token QUOTE
 %token LEFT_PAREN
 %token RIGHT_PAREN
 %token EOL
@@ -42,8 +43,12 @@ exp     : INTEGER       { $$ = integer2sexp($1);}
         | CHARACTER     { $$ = character2sexp($1);}
         | SYMBOL        { $$ = symbol2sexp($1);}
         | NIL           { $$ = nil;}
-	| TRUE		{ $$ = sexp_t;}
-	| FALSE		{ $$ = sexp_f;}
+        | TRUE          { $$ = sexp_t;}
+        | FALSE         { $$ = sexp_f;}
+        | QUOTE exp_noeval
+          {
+              $$ = $2;
+          }
         | LEFT_PAREN SPECIAL members_noeval
           {
               struct s_exp *p = symbol2sexp($2);
