@@ -65,9 +65,21 @@ struct s_exp *cons(struct s_exp *car, struct s_exp *cdr){
 	return e;
 }
 
+/*
+ * return true if the type is pair and the cdr is nil end.
+ */
+static int is_list(struct s_exp *e){
+	if(e == nil)
+		return 1;
+	else if(e->type != S_EXP_PAIR)
+		return 0;
+	else
+		return is_list(e->u.pair.cdr);
+}
+
 static void _write_type(struct s_exp *e){
 	if(e == nil)
-		printf("");
+		printf("<NIL>");
 	else if(e->type == S_EXP_INTEGER)
 		printf("<INTEGER>");
 	else if(e->type == S_EXP_CHARACTER)
@@ -78,6 +90,28 @@ static void _write_type(struct s_exp *e){
 		printf("<PAIR>");
 }
 
+static void _write_sexp(struct s_exp *e, int d);
+/*
+ * d = 0 if highest position
+ *     1 otherwise
+ */
+static void _write_list(struct s_exp *e, int d){
+	if(e == nil){
+		printf(")");
+		return;
+	}
+
+	if(d == 0)
+		printf("( ");
+	_write_sexp(e->u.pair.car,1);
+	printf(" ");
+	_write_list(e->u.pair.cdr,1);
+}
+
+/*
+ * d = 0 if highest position
+ *     1 otherwise
+ */
 static void _write_sexp(struct s_exp *e, int d){
 	if(d==0)
 		_write_type(e);
@@ -90,11 +124,13 @@ static void _write_sexp(struct s_exp *e, int d){
 		printf("%c",e->u.character);
 	}else if(e->type == S_EXP_SYMBOL){
 		printf("%s",e->u.symbol);
-	}else{
+	}else if(is_list(e)){			/* for list */
+		_write_list(e,0);
+	}else{					/* dotted pair */
 		printf("(");
-		_write_sexp(e->u.pair.car,d+1);
+		_write_sexp(e->u.pair.car,1);
 		printf(" . ");
-		_write_sexp(e->u.pair.cdr,d+1);
+		_write_sexp(e->u.pair.cdr,1);
 		printf(")");
 	}
 }
@@ -121,6 +157,63 @@ static struct s_exp *add(struct s_exp *args){
 }
 
 /*
+ * minus function
+ */
+static struct s_exp *minus(struct s_exp *args){
+	struct s_exp *p;
+	struct s_exp *q,*t;
+	int s = eval(args->u.pair.car)->u.integer;
+	p = args->u.pair.cdr;
+	free(args);
+
+	while(p != nil){
+		q = eval(p->u.pair.car);
+		t = p->u.pair.cdr;
+		free(p);
+		p = t;
+		s -= q->u.integer;
+	}
+	return integer2sexp(s);
+}
+
+/*
+ * multi function
+ */
+static struct s_exp *multi(struct s_exp *args){
+	struct s_exp *p = args;
+	struct s_exp *q,*t;
+	int s = 1;
+	while(p != nil){
+		q = eval(p->u.pair.car);
+		s *= q->u.integer;
+		t = p->u.pair.cdr;
+		free(p);
+		p = t;
+	}
+	return integer2sexp(s);
+}
+
+/*
+ * divi function
+ */
+static struct s_exp *divi(struct s_exp *args){
+	struct s_exp *p;
+	struct s_exp *q,*t;
+	int s = eval(args->u.pair.car)->u.integer;
+	p = args->u.pair.cdr;
+	free(args);
+
+	while(p != nil){
+		q = eval(p->u.pair.car);
+		t = p->u.pair.cdr;
+		free(p);
+		p = t;
+		s -= q->u.integer;
+	}
+	return integer2sexp(s);
+}
+
+/*
  * eval s expression
  *
  * 	(1) atom
@@ -142,6 +235,7 @@ struct s_exp *eval(struct s_exp *e){
 		/* fix http://melborne.github.io/2010/11/10/Ruby-Lisp/ */
 		struct s_exp *car = e->u.pair.car;
 		struct s_exp *cdr = e->u.pair.cdr;
+		printf("main 238: %s\n",car->u.symbol);
 		if(!strcmp(car->u.symbol, "quote")){	/* (2) (quote exp) */
 			return cdr;
 		}
@@ -157,9 +251,14 @@ struct s_exp *eval(struct s_exp *e){
  */
 struct s_exp *apply(struct s_exp *func, struct s_exp *args){
 	char *f_name = func->u.symbol;
-
 	if(!strcmp(f_name,"+")){
 		return add(args);
+	}else if(!strcmp(f_name,"-")){
+		return minus(args);
+	}else if(!strcmp(f_name,"*")){
+		return multi(args);
+	}else if(!strcmp(f_name,"/")){
+		return divi(args);
 	}
 	return nil;
 }

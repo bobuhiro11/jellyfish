@@ -6,7 +6,7 @@
 %}
 /* type of grammar,token */
 %union {
-  int t_int;
+  int  t_int;
   char t_char;
   char *t_symbol;
   char *t_special;
@@ -62,6 +62,7 @@ exp_noeval : INTEGER    { $$ = integer2sexp($1);}     /* no evalute s-expression
         | NIL           { $$ = nil;}
         | LEFT_PAREN exp_noeval DOT exp_noeval RIGHT_PAREN
           {
+              printf("aaa");
                $$ = cons($2,$4);
           }
         | LEFT_PAREN members
@@ -70,7 +71,7 @@ exp_noeval : INTEGER    { $$ = integer2sexp($1);}     /* no evalute s-expression
           }
         ;
 members : RIGHT_PAREN  { $$ = nil; }
-        | exp members  
+        | exp_noeval members  
           {
             $$ = cons($1,$2);
           }
