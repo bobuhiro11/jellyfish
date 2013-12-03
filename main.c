@@ -83,21 +83,22 @@ static int is_list(struct s_exp *e){
 }
 
 static void _write_type(struct s_exp *e){
+	printf(" : ");
 	if(e == nil)
-		printf("<NIL>");
+		printf("nil");
 	else if(e == sexp_t || e == sexp_f)
-		printf("<BOOLEAN>");
+		printf("boolean");
 	else if(e->type == S_EXP_INTEGER)
-		printf("<INTEGER>");
+		printf("integer");
 	else if(e->type == S_EXP_CHARACTER)
-		printf("<CHARACTER>");
+		printf("character");
 	else if(e->type == S_EXP_SYMBOL)
-		printf("<SYMBOL>");
+		printf("symbol");
 	else if(e->type == S_EXP_PAIR)
 		if(is_list(e))
-			printf("<LIST>");
+			printf("list");
 		else
-			printf("<PAIR>");
+			printf("pair");
 }
 
 static void _write_sexp(struct s_exp *e, int d);
@@ -123,8 +124,6 @@ static void _write_list(struct s_exp *e, int d){
  *     1 otherwise
  */
 static void _write_sexp(struct s_exp *e, int d){
-	if(d==0)
-		_write_type(e);
 
 	if(e == nil){
 		printf("nil");
@@ -147,6 +146,8 @@ static void _write_sexp(struct s_exp *e, int d){
 		_write_sexp(e->u.pair.cdr,1);
 		printf(")");
 	}
+	if(d==0)
+		_write_type(e);
 }
 
 void write_sexp(struct s_exp *e){
