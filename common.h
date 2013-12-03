@@ -50,8 +50,9 @@ struct s_exp *apply(struct s_exp *func, struct s_exp *args);
 /***************************************************
  * external variable definition
  ***************************************************/
-extern char *yytext;               /* lexer input */
-extern FILE *yyin;                 /* input file */
-extern int interactive;            /* true if interactive mode, false otherwise */
+extern char *yytext;		/* lexer input */
+extern FILE *yyin;		/* input file */
+extern int interactive;		/* true if interactive mode, false otherwise */
+extern int linenum;		/* line number */
 
 #endif COMMON_H

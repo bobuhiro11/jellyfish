@@ -6,6 +6,11 @@
 int interactive;
 
 /*
+ * line number incremented by parser
+ */
+int linenum=0;
+
+/*
  *  invalid token, grammar
  */
 void yyerror(char* s) {
@@ -17,7 +22,7 @@ void yyerror(char* s) {
  */
 void prompt(){ 
 	if(interactive)
-		printf("jellyfish> ");
+		printf("[%d]> ",linenum++);
 }
 
 int yywrap() { 
