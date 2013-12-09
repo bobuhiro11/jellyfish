@@ -52,6 +52,7 @@ void st_init(struct symbol_table *stable){
 	st_insert(stable, "-", builtin2sexp("-"));
 	st_insert(stable, "*", builtin2sexp("*"));
 	st_insert(stable, "/", builtin2sexp("/"));
+	st_insert(stable, "modulo", builtin2sexp("modulo"));
 
 	st_insert(stable, "cons", builtin2sexp("cons"));
 	st_insert(stable, "car", builtin2sexp("car"));

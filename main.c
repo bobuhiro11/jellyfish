@@ -96,7 +96,9 @@ struct s_exp *sexp_copy(struct s_exp *e){
  * return sexp object if success, NULL otherwise.
  */
 struct s_exp *sexp_ref(struct s_exp *e){
-	e->ref++;
+	if(e != nil && e!= sexp_t && e!= sexp_f){
+		e->ref++;
+	}
 	return e;
 }
 
@@ -353,6 +355,17 @@ static struct s_exp *divi(struct s_exp *args){
 }
 
 /*
+ * modulo function
+ */
+static struct s_exp *modulo(struct s_exp *args){
+
+	int x = eval(args->u.pair.car)->u.integer;
+	int y = eval(args->u.pair.cdr->u.pair.car)->u.integer;
+
+	return integer2sexp(x % y);
+}
+
+/*
  * or function
  */
 static struct s_exp *or(struct s_exp *args){
@@ -534,6 +547,8 @@ struct s_exp *apply(struct s_exp *func, struct s_exp *args){
 		return multi(args);
 	}else if(!strcmp(f_name,"/")){
 		return divi(args);
+	}else if(!strcmp(f_name,"modulo")){
+		return modulo(args);
 	}else if(!strcmp(f_name,"cons")){
 		return cons(p,q);
 	}else if(!strcmp(f_name,"car")){
