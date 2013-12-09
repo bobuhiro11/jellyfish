@@ -44,6 +44,42 @@ struct s_exp *sexp_alloc(){
 	e->ref = 1;
 	return e;
 }
+struct s_exp *sexp_copy(struct s_exp *e){
+	if(e == nil) return nil;
+
+	struct s_exp *p = sexp_alloc();
+	int len;
+
+	if(e->type == S_EXP_PAIR){
+		p->type = S_EXP_PAIR;
+		p->u.pair.car = sexp_copy(e->u.pair.car);
+		p->u.pair.cdr = sexp_copy(e->u.pair.cdr);	
+	}else if(e->type == S_EXP_INTEGER){
+		p->type = S_EXP_INTEGER;
+		p->u.integer = e->u.integer;
+	}else if(e->type == S_EXP_CHARACTER){
+		p->type = S_EXP_CHARACTER;
+		p->u.character = e->u.character;
+	}else if(e->type == S_EXP_SYMBOL){
+		p->type = S_EXP_SYMBOL;
+		len = strlen( e->u.symbol );
+		p->u.symbol = malloc(len+1);
+		memset(p->u.symbol, 0, len+1);
+		strncpy(p->u.symbol, e->u.symbol, len);
+	}else if(e->type == S_EXP_BUILTIN){
+		p->type = S_EXP_SYMBOL;
+		p->u.symbol = e->u.symbol;
+	}else if(e->type == S_EXP_SPECIAL){
+		p->type = S_EXP_SYMBOL;
+		p->u.special = e->u.special;
+	}else if(e->type == S_EXP_CLOJURE){
+		p->type = S_EXP_CLOJURE;
+		p->u.pair.car = sexp_copy(e->u.pair.car);
+		p->u.pair.cdr = sexp_copy(e->u.pair.cdr);	
+	}
+
+	return p;
+}
 
 /*
  * ref new sexp object.
@@ -119,7 +155,8 @@ struct s_exp *special2sexp(char *s){
 struct s_exp *clojure2sexp(struct s_exp *p){
 	struct s_exp *e =  sexp_alloc();
 	e->type = S_EXP_CLOJURE;
-	(e->u).clojure = p;
+	(e->u).pair.car = p->u.pair.car;
+	(e->u).pair.cdr = p->u.pair.cdr;
 	return e;
 }
 
@@ -213,7 +250,7 @@ static void _write_sexp(struct s_exp *e, int d){
 	}else if(e->type == S_EXP_SPECIAL){
 		printf("%s",e->u.special);
 	}else if(e->type == S_EXP_CLOJURE){
-		_write_list(e->u.clojure,0);
+		_write_list(e,0);
 	}else if(is_list(e)){			/* for list */
 		_write_list(e,0);
 	}else{					/* dotted pair */
@@ -361,7 +398,7 @@ static struct s_exp *_if(struct s_exp *args){
  */
 static struct s_exp *define(struct s_exp *args){
 	struct s_exp *s = args->u.pair.car;
-	struct s_exp *p = args->u.pair.cdr->u.pair.car;
+	struct s_exp *p = sexp_ref(args->u.pair.cdr->u.pair.car);
 
 	p = eval(p);
 	
@@ -375,9 +412,9 @@ static struct s_exp *define(struct s_exp *args){
  *
  * 	(1) atom
  * 	(2) symbol
- * 	(3) special operation
- * 	(4) builtin function
- *
+ * 	(3) special operation (so arg1 arg2)
+ * 	(4) builtin function  (bf arg1 arg2)
+ * 	(5) clojure           (cl arg1 arg2)
  */
 struct s_exp *eval(struct s_exp *e){
 	struct s_exp *car, *cdr;
@@ -402,6 +439,8 @@ struct s_exp *eval(struct s_exp *e){
 		return e;
 	}else if(e->type == S_EXP_SPECIAL){		/* (2) special */
 		return e;
+	}else if(e->type == S_EXP_CLOJURE){		/* (2) clojure */
+		return e;
 	}
 
 	car = e->u.pair.car;
@@ -425,6 +464,40 @@ struct s_exp *eval(struct s_exp *e){
 	}else if(car->type == S_EXP_BUILTIN){			/* (4) builtin function apply */
 		sexp_free(e);
 		return apply(car,cdr);
+	}else if(car->type == S_EXP_CLOJURE){			/* (5) clojure apply */
+		struct symbol_table *p;
+		struct s_exp *e1, *e2, *e;
+
+		/* new scope */
+		global_table = st_create(global_table);
+
+		e1 = car->u.pair.car;
+		e2 = cdr;
+
+		while(e1 && e2){
+			st_insert(global_table, 
+					e1->u.pair.car->u.symbol,e2->u.pair.car);
+
+			e1 = e1->u.pair.cdr;
+			e2 = e2->u.pair.cdr;
+		}
+
+		e = sexp_copy(car->u.pair.cdr->u.pair.car);
+
+		// printf("before:");
+		// write_sexp(car->u.pair.cdr->u.pair.car);
+		// printf("after:");
+		// write_sexp(e);
+
+		e = eval(e);
+
+		/* old scope */
+		// st_dump(global_table);
+		p = global_table;
+		global_table = global_table->next;
+		st_destory(p);
+
+		return e;
 	}
 }
 

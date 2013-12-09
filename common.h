@@ -35,7 +35,6 @@ struct s_exp{
 	int ref;
 	int type;
 	union{
-		struct s_exp *clojure;
 		struct pair pair;
 		int integer;
 		char character;
@@ -66,6 +65,7 @@ void write_sexp(struct s_exp *e);
 
 struct s_exp *sexp_alloc();
 struct s_exp *sexp_ref(struct s_exp *e);
+struct s_exp *sexp_copy(struct s_exp *e);
 void sexp_free(struct s_exp *e);
 
 struct s_exp *integer2sexp(int i);

@@ -92,7 +92,7 @@ void ht_dump(const struct hashtable *table){
 	int i;
 	for(i=0;i<HASHTABLE_SIZE;i++)
 		if(table[i].key[0] != '\0'){
-			printf("%s = ", table[i].key);
+			printf("%-8s = ", table[i].key);
 			write_sexp(table[i].data);
 			printf("\n");
 		}
