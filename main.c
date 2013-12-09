@@ -362,11 +362,14 @@ static struct s_exp *define(struct s_exp *args){
  * eval s expression
  *
  * 	(1) atom
- * 	(2) special operation
- * 	(3) function
+ * 	(2) symbol
+ * 	(3) special operation
+ * 	(4) builtin function
  *
  */
 struct s_exp *eval(struct s_exp *e){
+	struct s_exp *car, *cdr;
+
 	if(e == nil){					/* (1) nil */
 		return nil;
 	}else if(e == sexp_t || e == sexp_f){		/* (1) boolean */
@@ -375,8 +378,7 @@ struct s_exp *eval(struct s_exp *e){
 		return e;
 	}else if(e->type == S_EXP_CHARACTER){		/* (1) character */
 		return e;
-	}else if(e->type == S_EXP_SYMBOL){		/* (1) symbol */
-		/* fix */
+	}else if(e->type == S_EXP_SYMBOL){		/* (2) symbol */
 		struct s_exp *p;
 		if(!(p = st_find(global_table, e->u.symbol))){
 			fprintf(stderr,"Error: undefined symbol \"%s\".\n", 
@@ -384,21 +386,28 @@ struct s_exp *eval(struct s_exp *e){
 			return nil;
 		}
 		return p;
-	}else{
-		/* fix http://melborne.github.io/2010/11/10/Ruby-Lisp/ */
-		struct s_exp *car = e->u.pair.car;
-		struct s_exp *cdr = e->u.pair.cdr;
-		if(!strcmp(car->u.symbol, "quote")){	/* (2) (quote exp) */
+	}else if(e->type == S_EXP_BUILTIN){ 		/* (1) builtin */
+		return e;
+	}else if(e->type == S_EXP_SPECIAL){		/* (2) special */
+		return e;
+	}
+
+	car = e->u.pair.car;
+	cdr = e->u.pair.cdr;
+
+	car = eval(car);
+	if(car->type == S_EXP_SPECIAL){				/* (3) special operation */
+		if(!strcmp(car->u.symbol, "quote")){
 			return cdr->u.pair.car;
-		}else if(!strcmp(car->u.symbol,"if")){	/* (2) (if expA expB expC) */
+		}else if(!strcmp(car->u.symbol,"if")){
 			return _if(cdr);
-		}else if(!strcmp(car->u.symbol,"define")){/* (2) (define key value) */
+		}else if(!strcmp(car->u.symbol,"define")){
+			printf("defineeee\n");
 			return define(cdr);
 		}
-		else{ 					/* (3) function apply */
-			sexp_free(e);
-			return apply(car,cdr);
-		}
+	}else if(car->type == S_EXP_BUILTIN){			/* (4) builtin function apply */
+		sexp_free(e);
+		return apply(car,cdr);
 	}
 }
 

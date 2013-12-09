@@ -41,6 +41,7 @@ line    : EOL           { prompt();  }
         ;
 exp     : INTEGER       { $$ = integer2sexp($1);}
         | CHARACTER     { $$ = character2sexp($1);}
+        | SPECIAL       { $$ = special2sexp($1);}
         | NIL           { $$ = nil;}
         | TRUE          { $$ = sexp_t;}
         | FALSE         { $$ = sexp_f;}
@@ -72,6 +73,7 @@ members : RIGHT_PAREN  { $$ = nil; }
         ;
 exp_noeval : INTEGER    { $$ = integer2sexp($1);}     /* no evalute s-expression for special operator */
         | CHARACTER     { $$ = character2sexp($1);}
+        | SPECIAL       { $$ = special2sexp($1);}
         | SYMBOL        { $$ = symbol2sexp($1);}
         | NIL           { $$ = nil;}
 	      | TRUE		      { $$ = sexp_t;}
