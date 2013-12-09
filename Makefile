@@ -5,14 +5,16 @@ LEXER  := lexer
 BISON  := bison
 FLEX   := flex
 MAIN   := main
+HASH	 := hashtable
+SYMBOL := symbol_table
 
 all : $(TARGET)
 
 run : $(TARGET)
 	./$(TARGET)
 
-$(TARGET) : $(PARSER).c $(LEXER).c $(MAIN).c
-	$(CC) -g -o $(TARGET) $(PARSER).c $(LEXER).c $(MAIN).c
+$(TARGET) : $(PARSER).c $(LEXER).c $(MAIN).c $(HASH).c $(SYMBOL).c
+	$(CC) -g -o $(TARGET) $(PARSER).c $(LEXER).c $(MAIN).c $(HASH).c $(SYMBOL).c
 
 $(PARSER).c : $(PARSER).y
 	$(BISON) -o $(PARSER).c -d $(PARSER).y

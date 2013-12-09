@@ -91,8 +91,11 @@ struct s_exp *ht_find(const struct hashtable *table, const char *key){
 void ht_dump(const struct hashtable *table){
 	int i;
 	for(i=0;i<HASHTABLE_SIZE;i++)
-		if(table[i].key[0] != '\0')
-			printf("%s: %d\n", table[i].key, table[i].data);
+		if(table[i].key[0] != '\0'){
+			printf("%s = ", table[i].key);
+			write_sexp(table[i].data);
+			printf("\n");
+		}
 }
 
 /*
@@ -101,10 +104,15 @@ void ht_dump(const struct hashtable *table){
  */
 struct hashtable* ht_create(){
 	struct hashtable *table;
+	int i;
+
 	if(!(table = (struct hashtable*)malloc(sizeof(struct hashtable) * HASHTABLE_SIZE)))
 		return NULL;
 
 	memset(table, 0, HASHTABLE_SIZE*sizeof(struct hashtable));
+
+	for(i=0;i<HASHTABLE_SIZE;i++)
+		table[i].data=nil;
 	return table;
 }
 

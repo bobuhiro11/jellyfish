@@ -41,7 +41,7 @@ line    : EOL           { prompt();  }
         ;
 exp     : INTEGER       { $$ = integer2sexp($1);}
         | CHARACTER     { $$ = character2sexp($1);}
-        | SYMBOL        { $$ = symbol2sexp($1);}
+        | SYMBOL        { $$ = symbol2sexp($1)};
         | NIL           { $$ = nil;}
         | TRUE          { $$ = sexp_t;}
         | FALSE         { $$ = sexp_f;}

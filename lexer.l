@@ -15,7 +15,7 @@
 "#t"	                            { return TRUE; }
 "#f"	                            { return FALSE; }
 "'"	                            { return QUOTE; }
-"quote"|"if"                        { 
+"quote"|"if"|"define"                 { 
   int n = strlen(yytext);
   char *p = (char*)malloc(n+1);
   yylval.t_symbol = p;

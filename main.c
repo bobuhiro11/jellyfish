@@ -11,6 +11,11 @@ int interactive;
 int linenum=0;
 
 /*
+ * global symbol table.
+ */
+struct symbol_table *global_table;
+
+/*
  *  invalid token, grammar
  */
 void yyerror(char* s) {
@@ -311,6 +316,21 @@ static struct s_exp *_if(struct s_exp *args){
 }
 
 /*
+ * define special operation
+ */
+static struct s_exp *define(struct s_exp *args){
+	struct s_exp *s = args->u.pair.car;
+	struct s_exp *p = args->u.pair.cdr->u.pair.car;
+
+	p = eval(p);
+	
+	st_insert(global_table, s->u.symbol, p);
+	sexp_free(s);
+	st_dump(global_table);
+	return sexp_t;
+}
+
+/*
  * eval s expression
  *
  * 	(1) atom
@@ -329,6 +349,9 @@ struct s_exp *eval(struct s_exp *e){
 		return e;
 	}else if(e->type == S_EXP_SYMBOL){		/* (1) symbol */
 		/* fix */
+		printf("s_exp_symbol\n");
+		if(!(e = st_find(global_table, e->u.symbol)))
+			return nil;
 		return e;
 	}else{
 		/* fix http://melborne.github.io/2010/11/10/Ruby-Lisp/ */
@@ -338,9 +361,11 @@ struct s_exp *eval(struct s_exp *e){
 			return cdr->u.pair.car;
 		}else if(!strcmp(car->u.symbol,"if")){	/* (2) (if expA expB expC) */
 			return _if(cdr);
+		}else if(!strcmp(car->u.symbol,"define")){	/* (2) (define key value) */
+			return define(cdr);
 		}
 		else{ 					/* (3) function apply */
-			free(e);
+			sexp_free(e);
 			return apply(car,cdr);
 		}
 	}
@@ -415,6 +440,8 @@ struct s_exp *apply(struct s_exp *func, struct s_exp *args){
 
 int main(int argc, char **argv) {
 	char *p;
+
+	global_table = st_create(NULL);
 	if(argc > 1){
 		/* from source code */
 		interactive = 0;
@@ -429,5 +456,6 @@ int main(int argc, char **argv) {
 		prompt();
 	}
 	yyparse();
+	st_destory(global_table);
 	return 0;
 }

@@ -43,6 +43,11 @@ struct hashtable{
 	struct s_exp *data;
 };
 
+struct symbol_table{
+	struct hashtable *table;
+	struct symbol_table *next;
+};
+
 /***************************************************
  * function prototype definition
  ***************************************************/
@@ -62,6 +67,12 @@ struct s_exp *symbol2sexp(char *s);
 struct s_exp *cons(struct s_exp *car, struct s_exp *cdr);
 struct s_exp *eval(struct s_exp *e);
 struct s_exp *apply(struct s_exp *func, struct s_exp *args);
+
+struct symbol_table *st_create(struct symbol_table *next);
+struct symbol_table *st_destory(struct symbol_table *stable);
+struct s_exp *st_insert(struct symbol_table *stable, const char *key, struct s_exp *data);
+struct s_exp *st_find(const struct symbol_table *stable, const char *key);
+void st_dump(const struct symbol_table *stable);
 
 struct hashtable* ht_create();
 void ht_destory(struct hashtable *table);
