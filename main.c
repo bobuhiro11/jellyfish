@@ -279,7 +279,7 @@ static struct s_exp *add(struct s_exp *args){
 		q = eval(p->u.pair.car);
 		s += q->u.integer;
 		t = p->u.pair.cdr;
-		sexp_free(p);
+		// sexp_free(p);
 		p = t;
 	}
 	return integer2sexp(s);
@@ -293,12 +293,12 @@ static struct s_exp *minus(struct s_exp *args){
 	struct s_exp *q,*t;
 	int s = eval(args->u.pair.car)->u.integer;
 	p = args->u.pair.cdr;
-	sexp_free(args);
+	// sexp_free(args);
 
 	while(p != nil){
 		q = eval(p->u.pair.car);
 		t = p->u.pair.cdr;
-		sexp_free(p);
+		// sexp_free(p);
 		p = t;
 		s -= q->u.integer;
 	}
@@ -316,7 +316,7 @@ static struct s_exp *multi(struct s_exp *args){
 		q = eval(p->u.pair.car);
 		s *= q->u.integer;
 		t = p->u.pair.cdr;
-		sexp_free(p);
+		// sexp_free(p);
 		p = t;
 	}
 	return integer2sexp(s);
@@ -330,12 +330,12 @@ static struct s_exp *divi(struct s_exp *args){
 	struct s_exp *q,*t;
 	int s = eval(args->u.pair.car)->u.integer;
 	p = args->u.pair.cdr;
-	sexp_free(args);
+	// sexp_free(args);
 
 	while(p != nil){
 		q = eval(p->u.pair.car);
 		t = p->u.pair.cdr;
-		sexp_free(p);
+		// sexp_free(p);
 		p = t;
 		s -= q->u.integer;
 	}
@@ -352,7 +352,7 @@ static struct s_exp *or(struct s_exp *args){
 
 	p = eval(args->u.pair.car);
 	q = args->u.pair.cdr;
-	sexp_free(args);
+	// sexp_free(args);
 	return (p != sexp_f) ? sexp_t : or(q);
 }
 
@@ -366,7 +366,7 @@ static struct s_exp *and(struct s_exp *args){
 
 	p = eval(args->u.pair.car);
 	q = args->u.pair.cdr;
-	sexp_free(args);
+	// sexp_free(args);
 	return (p == sexp_f) ? sexp_f : and(q);
 }
 
@@ -403,7 +403,7 @@ static struct s_exp *define(struct s_exp *args){
 	p = eval(p);
 	
 	st_insert(global_table, s->u.symbol, p);
-	sexp_free(s);
+	// sexp_free(s);
 	return sexp_t;
 }
 
@@ -462,7 +462,7 @@ struct s_exp *eval(struct s_exp *e){
 			return p;
 		}
 	}else if(car->type == S_EXP_BUILTIN){			/* (4) builtin function apply */
-		sexp_free(e);
+		// sexp_free(e);
 		return apply(car,cdr);
 	}else if(car->type == S_EXP_CLOJURE){			/* (5) clojure apply */
 		return apply_clojure_call(car,cdr);
@@ -485,7 +485,7 @@ struct s_exp *apply_clojure_call(struct s_exp *clojure, struct s_exp *args){
 
 	while(e1 && e2){
 		st_insert(global_table, 
-				e1->u.pair.car->u.symbol,e2->u.pair.car);
+				e1->u.pair.car->u.symbol,eval(e2->u.pair.car));
 
 		e1 = e1->u.pair.cdr;
 		e2 = e2->u.pair.cdr;
