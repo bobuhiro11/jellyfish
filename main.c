@@ -465,40 +465,42 @@ struct s_exp *eval(struct s_exp *e){
 		sexp_free(e);
 		return apply(car,cdr);
 	}else if(car->type == S_EXP_CLOJURE){			/* (5) clojure apply */
-		struct symbol_table *p;
-		struct s_exp *e1, *e2, *e;
-
-		/* new scope */
-		global_table = st_create(global_table);
-
-		e1 = car->u.pair.car;
-		e2 = cdr;
-
-		while(e1 && e2){
-			st_insert(global_table, 
-					e1->u.pair.car->u.symbol,e2->u.pair.car);
-
-			e1 = e1->u.pair.cdr;
-			e2 = e2->u.pair.cdr;
-		}
-
-		e = sexp_copy(car->u.pair.cdr->u.pair.car);
-
-		// printf("before:");
-		// write_sexp(car->u.pair.cdr->u.pair.car);
-		// printf("after:");
-		// write_sexp(e);
-
-		e = eval(e);
-
-		/* old scope */
-		// st_dump(global_table);
-		p = global_table;
-		global_table = global_table->next;
-		st_destory(p);
-
-		return e;
+		return apply_clojure_call(car,cdr);
 	}
+}
+
+/*
+ * apply clojure call
+ */
+struct s_exp *apply_clojure_call(struct s_exp *clojure, struct s_exp *args){
+	struct symbol_table *p;
+	struct s_exp *e1, *e2, *e;
+
+	/* new scope */
+	global_table = st_create(global_table);
+
+	/* insert argument */
+	e1 = clojure->u.pair.car;
+	e2 = args;
+
+	while(e1 && e2){
+		st_insert(global_table, 
+				e1->u.pair.car->u.symbol,e2->u.pair.car);
+
+		e1 = e1->u.pair.cdr;
+		e2 = e2->u.pair.cdr;
+	}
+
+	/* copy clojure expression and eval */
+	e = sexp_copy(clojure->u.pair.cdr->u.pair.car);
+	e = eval(e);
+
+	/* old scope */
+	p = global_table;
+	global_table = global_table->next;
+	st_destory(p);
+
+	return e;
 }
 
 /*
