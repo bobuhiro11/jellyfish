@@ -41,10 +41,14 @@ line    : EOL           { prompt();  }
         ;
 exp     : INTEGER       { $$ = integer2sexp($1);}
         | CHARACTER     { $$ = character2sexp($1);}
-        | SYMBOL        { $$ = symbol2sexp($1)};
         | NIL           { $$ = nil;}
         | TRUE          { $$ = sexp_t;}
         | FALSE         { $$ = sexp_f;}
+        | SYMBOL        
+          { 
+              struct s_exp *p = symbol2sexp($1);
+              $$ = eval(p);
+          }
         | QUOTE exp_noeval
           {
               $$ = $2;

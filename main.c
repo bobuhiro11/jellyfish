@@ -95,6 +95,26 @@ struct s_exp *symbol2sexp(char *s){
 }
 
 /*
+ * create s_exp from builtin
+ */
+struct s_exp *builtin2sexp(char *s){
+	struct s_exp *e =  sexp_alloc();
+	e->type = S_EXP_BUILTIN;
+	(e->u).builtin = s;
+	return e;
+}
+
+/*
+ * create s_exp from special
+ */
+struct s_exp *special2sexp(char *s){
+	struct s_exp *e =  sexp_alloc();
+	e->type = S_EXP_SPECIAL;
+	(e->u).special = s;
+	return e;
+}
+
+/*
  * create s_exp from dotted pair
  */
 struct s_exp *cons(struct s_exp *car, struct s_exp *cdr){
@@ -129,6 +149,10 @@ static void _write_type(struct s_exp *e){
 		printf("character");
 	else if(e->type == S_EXP_SYMBOL)
 		printf("symbol");
+	else if(e->type == S_EXP_SPECIAL)
+		printf("special");
+	else if(e->type == S_EXP_BUILTIN)
+		printf("builtin");
 	else if(e->type == S_EXP_PAIR)
 		if(is_list(e))
 			printf("list");
@@ -173,6 +197,10 @@ static void _write_sexp(struct s_exp *e, int d){
 		printf("%c",e->u.character);
 	}else if(e->type == S_EXP_SYMBOL){
 		printf("%s",e->u.symbol);
+	}else if(e->type == S_EXP_BUILTIN){
+		printf("%s",e->u.builtin);
+	}else if(e->type == S_EXP_SPECIAL){
+		printf("%s",e->u.special);
 	}else if(is_list(e)){			/* for list */
 		_write_list(e,0);
 	}else{					/* dotted pair */
@@ -349,10 +377,13 @@ struct s_exp *eval(struct s_exp *e){
 		return e;
 	}else if(e->type == S_EXP_SYMBOL){		/* (1) symbol */
 		/* fix */
-		printf("s_exp_symbol\n");
-		if(!(e = st_find(global_table, e->u.symbol)))
+		struct s_exp *p;
+		if(!(p = st_find(global_table, e->u.symbol))){
+			fprintf(stderr,"Error: undefined symbol \"%s\".\n", 
+					e->u.symbol);
 			return nil;
-		return e;
+		}
+		return p;
 	}else{
 		/* fix http://melborne.github.io/2010/11/10/Ruby-Lisp/ */
 		struct s_exp *car = e->u.pair.car;
@@ -361,7 +392,7 @@ struct s_exp *eval(struct s_exp *e){
 			return cdr->u.pair.car;
 		}else if(!strcmp(car->u.symbol,"if")){	/* (2) (if expA expB expC) */
 			return _if(cdr);
-		}else if(!strcmp(car->u.symbol,"define")){	/* (2) (define key value) */
+		}else if(!strcmp(car->u.symbol,"define")){/* (2) (define key value) */
 			return define(cdr);
 		}
 		else{ 					/* (3) function apply */
@@ -442,6 +473,8 @@ int main(int argc, char **argv) {
 	char *p;
 
 	global_table = st_create(NULL);
+	st_init(global_table);
+
 	if(argc > 1){
 		/* from source code */
 		interactive = 0;
