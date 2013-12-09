@@ -28,13 +28,14 @@ struct pair{
 #define S_EXP_CHARACTER	3
 #define S_EXP_SYMBOL	4
 struct s_exp{                   
-  int type;
-  union{
-    struct pair pair;
-    int integer;
-    char character;
-    char *symbol;
-  }u;
+	int ref;
+	int type;
+	union{
+		struct pair pair;
+		int integer;
+		char character;
+		char *symbol;
+	}u;
 };
 
 struct hashtable{
@@ -50,6 +51,10 @@ void yyerror(char* s);
 void prompt();
 int yywrap();
 void write_sexp(struct s_exp *e);
+
+struct s_exp *sexp_alloc();
+struct s_exp *sexp_ref(struct s_exp *e);
+void sexp_free(struct s_exp *e);
 
 struct s_exp *integer2sexp(int i);
 struct s_exp *character2sexp(char c);

@@ -30,10 +30,40 @@ int yywrap() {
 }
 
 /*
+ * alloc new sexp object.
+ * return sexp object if success, NULL otherwise.
+ */
+struct s_exp *sexp_alloc(){
+	struct s_exp *e =  (struct s_exp*)malloc(sizeof(struct s_exp));
+	if(!e)
+		return NULL;
+	e->ref = 1;
+	return e;
+}
+
+/*
+ * ref new sexp object.
+ * return sexp object if success, NULL otherwise.
+ */
+struct s_exp *sexp_ref(struct s_exp *e){
+	e->ref++;
+	return e;
+}
+
+/*
+ * free sexp object if reference count is 0.
+ */
+void sexp_free(struct s_exp *e){
+	if( --(e->ref) < 1){
+		free(e);
+	}
+}
+
+/*
  * create s_exp from integer
  */
 struct s_exp *integer2sexp(int i){
-	struct s_exp *e =  (struct s_exp*)malloc(sizeof(struct s_exp));
+	struct s_exp *e = sexp_alloc();
 	e->type = S_EXP_INTEGER;
 	(e->u).integer = i;
 	return e;
@@ -43,7 +73,7 @@ struct s_exp *integer2sexp(int i){
  * create s_exp from character
  */
 struct s_exp *character2sexp(char c){
-	struct s_exp *e =  (struct s_exp*)malloc(sizeof(struct s_exp));
+	struct s_exp *e =  sexp_alloc();
 	e->type = S_EXP_CHARACTER;
 	(e->u).character = c;
 	return e;
@@ -53,7 +83,7 @@ struct s_exp *character2sexp(char c){
  * create s_exp from symbol
  */
 struct s_exp *symbol2sexp(char *s){
-	struct s_exp *e =  (struct s_exp*)malloc(sizeof(struct s_exp));
+	struct s_exp *e =  sexp_alloc();
 	e->type = S_EXP_SYMBOL;
 	(e->u).symbol = s;
 	return e;
@@ -63,7 +93,7 @@ struct s_exp *symbol2sexp(char *s){
  * create s_exp from dotted pair
  */
 struct s_exp *cons(struct s_exp *car, struct s_exp *cdr){
-	struct s_exp *e =  (struct s_exp*)malloc(sizeof(struct s_exp));
+	struct s_exp *e =  sexp_alloc();
 	e->type = S_EXP_PAIR;
 	(e->u).pair.car = car;
 	(e->u).pair.cdr = cdr;
@@ -166,7 +196,7 @@ static struct s_exp *add(struct s_exp *args){
 		q = eval(p->u.pair.car);
 		s += q->u.integer;
 		t = p->u.pair.cdr;
-		free(p);
+		sexp_free(p);
 		p = t;
 	}
 	return integer2sexp(s);
@@ -180,12 +210,12 @@ static struct s_exp *minus(struct s_exp *args){
 	struct s_exp *q,*t;
 	int s = eval(args->u.pair.car)->u.integer;
 	p = args->u.pair.cdr;
-	free(args);
+	sexp_free(args);
 
 	while(p != nil){
 		q = eval(p->u.pair.car);
 		t = p->u.pair.cdr;
-		free(p);
+		sexp_free(p);
 		p = t;
 		s -= q->u.integer;
 	}
@@ -203,7 +233,7 @@ static struct s_exp *multi(struct s_exp *args){
 		q = eval(p->u.pair.car);
 		s *= q->u.integer;
 		t = p->u.pair.cdr;
-		free(p);
+		sexp_free(p);
 		p = t;
 	}
 	return integer2sexp(s);
@@ -217,12 +247,12 @@ static struct s_exp *divi(struct s_exp *args){
 	struct s_exp *q,*t;
 	int s = eval(args->u.pair.car)->u.integer;
 	p = args->u.pair.cdr;
-	free(args);
+	sexp_free(args);
 
 	while(p != nil){
 		q = eval(p->u.pair.car);
 		t = p->u.pair.cdr;
-		free(p);
+		sexp_free(p);
 		p = t;
 		s -= q->u.integer;
 	}
@@ -239,6 +269,7 @@ static struct s_exp *or(struct s_exp *args){
 
 	p = args->u.pair.car;
 	q = args->u.pair.cdr;
+	sexp_free(args);
 	return (p != sexp_f) ? sexp_t : or(q);
 }
 
@@ -252,6 +283,7 @@ static struct s_exp *and(struct s_exp *args){
 
 	p = args->u.pair.car;
 	q = args->u.pair.cdr;
+	sexp_free(args);
 	return (p == sexp_f) ? sexp_f : and(q);
 }
 
