@@ -23,25 +23,19 @@ struct pair{
 	struct s_exp *cdr;
 };
 
-struct symbol_table;
-struct clojure{
-	struct s_exp *symbols;
-	struct s_exp *sexp;
-};
-
 #define S_EXP_PAIR 	1
 #define S_EXP_INTEGER	2
 #define S_EXP_CHARACTER	3
 #define S_EXP_SYMBOL	4
 #define S_EXP_BUILTIN	5
 #define S_EXP_SPECIAL	6
-#define S_EXP_LAMBDA	7
+#define S_EXP_CLOJURE	7
 
 struct s_exp{                   
 	int ref;
 	int type;
 	union{
-		struct clojure clojure;
+		struct s_exp *clojure;
 		struct pair pair;
 		int integer;
 		char character;
@@ -79,6 +73,7 @@ struct s_exp *character2sexp(char c);
 struct s_exp *symbol2sexp(char *s);
 struct s_exp *builtin2sexp(char *s);
 struct s_exp *special2sexp(char *s);
+struct s_exp *clojure2sexp(struct s_exp *e);
 struct s_exp *cons(struct s_exp *car, struct s_exp *cdr);
 struct s_exp *eval(struct s_exp *e);
 struct s_exp *apply(struct s_exp *func, struct s_exp *args);

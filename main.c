@@ -6,8 +6,7 @@
 int interactive;
 
 /*
- * line number incremented by parser
- */
+ * line number incremented by parser */
 int linenum=0;
 
 /*
@@ -115,6 +114,16 @@ struct s_exp *special2sexp(char *s){
 }
 
 /*
+ * create s_exp from clojure
+ */
+struct s_exp *clojure2sexp(struct s_exp *p){
+	struct s_exp *e =  sexp_alloc();
+	e->type = S_EXP_CLOJURE;
+	(e->u).clojure = p;
+	return e;
+}
+
+/*
  * create s_exp from dotted pair
  */
 struct s_exp *cons(struct s_exp *car, struct s_exp *cdr){
@@ -153,6 +162,8 @@ static void _write_type(struct s_exp *e){
 		printf("special");
 	else if(e->type == S_EXP_BUILTIN)
 		printf("builtin");
+	else if(e->type == S_EXP_CLOJURE)
+		printf("clojure");
 	else if(e->type == S_EXP_PAIR)
 		if(is_list(e))
 			printf("list");
@@ -201,6 +212,8 @@ static void _write_sexp(struct s_exp *e, int d){
 		printf("%s",e->u.builtin);
 	}else if(e->type == S_EXP_SPECIAL){
 		printf("%s",e->u.special);
+	}else if(e->type == S_EXP_CLOJURE){
+		_write_list(e->u.clojure,0);
 	}else if(is_list(e)){			/* for list */
 		_write_list(e,0);
 	}else{					/* dotted pair */
@@ -405,6 +418,9 @@ struct s_exp *eval(struct s_exp *e){
 		}else if(!strcmp(car->u.symbol,"symbols")){
 			st_dump(global_table);
 			return sexp_t;
+		}else if(!strcmp(car->u.symbol,"lambda")){
+			struct s_exp *p = clojure2sexp(cdr);
+			return p;
 		}
 	}else if(car->type == S_EXP_BUILTIN){			/* (4) builtin function apply */
 		sexp_free(e);
