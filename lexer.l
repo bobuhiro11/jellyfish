@@ -3,18 +3,21 @@
  * lexer.l
  **********************************************/
 #include "common.h"
+
+static int paren_num=0;
+
 %}
 
 %%
 [ \t]+                              {  }
-[-]?[0-9]+   			    { sscanf(yytext, "%d", (int*)&yylval); return INTEGER; }
-[(]                  		            { return LEFT_PAREN; }
-[)]         		                    {	return RIGHT_PAREN; }
-"\n"                                { return EOL; }
+[-]?[0-9]+   			                  { sscanf(yytext, "%d", (int*)&yylval); return INTEGER; }
+[(]                  		            { paren_num ++; return LEFT_PAREN; }
+[)]         		                    {	paren_num --; return RIGHT_PAREN; }
+"\n"                                { if(paren_num != 0) prompt_multi();}
 "nil"                               { return NIL; }
-"#t"	                            { return TRUE; }
-"#f"	                            { return FALSE; }
-"'"	                            { return QUOTE; }
+"#t"	                              { return TRUE; }
+"#f"	                              { return FALSE; }
+"'"	                                { return QUOTE; }
 [a-z|\+|\-|\*|\/|?|=|>|<]+          { 
   int n = strlen(yytext);
   char *p = (char*)malloc(n+1);

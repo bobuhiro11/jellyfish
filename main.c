@@ -25,8 +25,18 @@ void yyerror(char* s) {
  * show prompt before input
  */
 void prompt(){ 
-	if(interactive)
+	if(interactive){
 		printf("[%d]> ",linenum++);
+	}
+}
+
+/*
+ * show multi line prompt before input
+ */
+void prompt_multi(){ 
+	if(interactive){
+		printf("...   ");
+	}
 }
 
 int yywrap() { 

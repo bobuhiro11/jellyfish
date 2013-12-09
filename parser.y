@@ -22,7 +22,6 @@
 %token QUOTE
 %token LEFT_PAREN
 %token RIGHT_PAREN
-%token EOL
 
 /* type of grammar */
 %type <t_sexp> exp_noeval
@@ -30,11 +29,7 @@
 
 %%
 input   :
-        | input line    {}
-        ;
-line    : EOL           { prompt();  }
-        | exp_noeval EOL       { struct s_exp *e = eval($1); write_sexp(e); putc('\n',stdout); prompt(); }
-        ;
+        | input exp_noeval    { struct s_exp *e = eval($2); write_sexp(e); putc('\n',stdout); prompt(); }
 exp_noeval : INTEGER    { $$ = integer2sexp($1);}     /* no evalute s-expression for special operator */
         | CHARACTER     { $$ = character2sexp($1);}
         | SYMBOL        { $$ = symbol2sexp($1);}

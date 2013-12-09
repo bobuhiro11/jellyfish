@@ -60,6 +60,7 @@ struct symbol_table{
 int yylex(void);
 void yyerror(char* s);
 void prompt();
+void prompt_multi();
 int yywrap();
 void write_sexp(struct s_exp *e);
 
