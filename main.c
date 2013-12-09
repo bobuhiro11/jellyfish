@@ -350,7 +350,7 @@ static struct s_exp *or(struct s_exp *args){
 
 	if(args == nil) return sexp_f;
 
-	p = args->u.pair.car;
+	p = eval(args->u.pair.car);
 	q = args->u.pair.cdr;
 	sexp_free(args);
 	return (p != sexp_f) ? sexp_t : or(q);
@@ -364,7 +364,7 @@ static struct s_exp *and(struct s_exp *args){
 
 	if(args == nil) return sexp_t;
 
-	p = args->u.pair.car;
+	p = eval(args->u.pair.car);
 	q = args->u.pair.cdr;
 	sexp_free(args);
 	return (p == sexp_f) ? sexp_f : and(q);
@@ -376,7 +376,7 @@ static struct s_exp *and(struct s_exp *args){
 static struct s_exp *list(struct s_exp *args){
 	if(args == nil)
 		return nil;
-	return cons(args->u.pair.car,list(args->u.pair.cdr));
+	return cons(eval(args->u.pair.car),list(args->u.pair.cdr));
 }
 
 /*
@@ -511,9 +511,9 @@ struct s_exp *apply(struct s_exp *func, struct s_exp *args){
 	struct s_exp *p, *q;
 
 	/* p: args[0], q: args[1] */
-	p = args->u.pair.car;
+	p = eval(args->u.pair.car);
 	if(args->u.pair.cdr != nil)
-		q = args->u.pair.cdr->u.pair.car;
+		q = eval(args->u.pair.cdr->u.pair.car);
 
 
 	if(!strcmp(f_name,"+")){
