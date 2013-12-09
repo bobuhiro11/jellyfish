@@ -19,8 +19,14 @@
  * structure definition
  ***************************************************/
 struct pair{
-  struct s_exp *car;
-  struct s_exp *cdr;
+	struct s_exp *car;
+	struct s_exp *cdr;
+};
+
+struct symbol_table;
+struct clojure{
+	struct s_exp *symbols;
+	struct s_exp *sexp;
 };
 
 #define S_EXP_PAIR 	1
@@ -29,11 +35,13 @@ struct pair{
 #define S_EXP_SYMBOL	4
 #define S_EXP_BUILTIN	5
 #define S_EXP_SPECIAL	6
+#define S_EXP_LAMBDA	7
 
 struct s_exp{                   
 	int ref;
 	int type;
 	union{
+		struct clojure clojure;
 		struct pair pair;
 		int integer;
 		char character;

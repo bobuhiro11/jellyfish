@@ -14,10 +14,17 @@ struct symbol_table *st_destory(struct symbol_table *stable){
 	free(stable);
 }
 
+static void _st_dump(const struct symbol_table *stable, int depth){
+
+	if(!stable) return;
+
+	printf("**symbol table scope %d**\n",depth);
+	ht_dump(stable->table);
+	_st_dump(stable->next, depth+1);
+}
 
 void st_dump(const struct symbol_table *stable){
-	printf("**symbol table**\n");
-	ht_dump(stable->table);
+	_st_dump(stable,0);
 }
 
 struct s_exp *st_insert(struct symbol_table *stable, const char *key, struct s_exp *data){
@@ -25,13 +32,20 @@ struct s_exp *st_insert(struct symbol_table *stable, const char *key, struct s_e
 }
 
 struct s_exp *st_find(const struct symbol_table *stable, const char *key){
-	return ht_find(stable->table, key);
+	struct s_exp *e;
+
+	if(!stable)	return NULL;
+
+	e = ht_find(stable->table, key);
+	if(e)	return e;
+	else 	return st_find(stable->next, key);
 }
 
 void st_init(struct symbol_table *stable){
 	st_insert(stable, "quote", special2sexp("quote"));
 	st_insert(stable, "if", special2sexp("if"));
 	st_insert(stable, "define", special2sexp("define"));
+	st_insert(stable, "symbols", special2sexp("symbols"));
 
 	st_insert(stable, "+", builtin2sexp("+"));
 	st_insert(stable, "-", builtin2sexp("-"));

@@ -354,7 +354,6 @@ static struct s_exp *define(struct s_exp *args){
 	
 	st_insert(global_table, s->u.symbol, p);
 	sexp_free(s);
-	st_dump(global_table);
 	return sexp_t;
 }
 
@@ -402,8 +401,10 @@ struct s_exp *eval(struct s_exp *e){
 		}else if(!strcmp(car->u.symbol,"if")){
 			return _if(cdr);
 		}else if(!strcmp(car->u.symbol,"define")){
-			printf("defineeee\n");
 			return define(cdr);
+		}else if(!strcmp(car->u.symbol,"symbols")){
+			st_dump(global_table);
+			return sexp_t;
 		}
 	}else if(car->type == S_EXP_BUILTIN){			/* (4) builtin function apply */
 		sexp_free(e);
