@@ -9,7 +9,8 @@ static int paren_num=0;
 %}
 
 %%
-[ \t]+                              {  }
+";".*"\n"                           { }
+[ \t]+                              { }
 [-]?[0-9]+   			                  { sscanf(yytext, "%d", (int*)&yylval); return INTEGER; }
 [(]                  		            { paren_num ++; return LEFT_PAREN; }
 [)]         		                    {	paren_num --; return RIGHT_PAREN; }
