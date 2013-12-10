@@ -56,7 +56,7 @@
 (gcd2 30 9)
 
 ;
-; ソート
+; クイックソート
 ;
 
 ; (part >= (quote (2 5 9)) 5) => (5 9)
@@ -71,13 +71,13 @@
 (part >= (quote (2 5 9)) 5)
 (part <  (quote (2 5 9)) 5)
 
-; (quicksort (quote (3 4 6 4 ))) => (3 4 6 4)
-; (define quicksort
-;   (lambda (x)
-;     (if (nil? x)
-;       nil
-;       (append
-;         (quicksort (small (car x) x))
-;         (quicksort (large (car x) x))))))
-; ; (quicksort (quote (20 4 6 2 9 8 10 38 92 88)))
-; (quicksort (quote (4 3)))
+(define quicksort
+  (lambda (x)
+    (if (nil? x)
+      nil
+      (append
+        (quicksort (part <  x (car x)))
+        (cons 
+          (car x)
+          (quicksort (part >  x (car x))))))))
+(quicksort (quote (20 4 6 2 9 8 10 38 92 88)))
