@@ -18,6 +18,7 @@
 ;
 (cons (cons 1 2) (cons 3 4))
 (list (+ 0 1) (/ 4 2) (- 6 3))
+(append (quote ( 2 3)) (quote (4 5)))
 
 (define  tail
   (lambda (x)
@@ -79,10 +80,11 @@
 (small 5 (quote (2 5 9)))
 
 ; (quicksort (quote (3 4 6 4 ))) => (3 4 6 4)
-; (define quicksort
-;   (lambda (x)
-;     (if (nil? x)
-;       nil
-;       (append
-;         (quicksort (large (car x) x))
-;         (quicksort (small (car x) x))))))
+(define quicksort
+  (lambda (x)
+    (if (nil? x)
+      nil
+      (append
+        (quicksort (large (car x) x))
+        (quicksort (small (car x) x))))))
+(quicksort (quote (3 4 6 4 )))

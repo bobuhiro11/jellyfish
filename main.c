@@ -56,6 +56,8 @@ struct s_exp *sexp_alloc(){
 }
 struct s_exp *sexp_copy(struct s_exp *e){
 	if(e == nil) return nil;
+	else if(e == sexp_t) return sexp_t;
+	else if(e == sexp_f) return sexp_f;
 
 	struct s_exp *p = sexp_alloc();
 	int len;
@@ -184,6 +186,23 @@ struct s_exp *cons(struct s_exp *car, struct s_exp *cdr){
 }
 
 /*
+ * append two s_exp
+ */
+struct s_exp *append(struct s_exp *exp1, struct s_exp *exp2){
+	struct s_exp *e, *e2;
+
+	if(exp1 == nil)
+		return sexp_copy(exp2);
+
+	e = e2 = sexp_copy(exp1);
+	while(e2->u.pair.cdr != nil)
+		e2 = e2->u.pair.cdr;
+	e2->u.pair.cdr = sexp_copy(exp2);
+
+	return e;
+}
+
+/*
  * return true if the type is pair and the cdr is nil end.
  */
 static int is_list(struct s_exp *e){
@@ -199,7 +218,7 @@ static void _write_type(struct s_exp *e){
 	printf(" : ");
 	if(e == nil)
 		printf("nil");
-	if(e == sexp_undef)
+	else if(e == sexp_undef)
 		printf("undef");
 	else if(e == sexp_t || e == sexp_f)
 		printf("boolean");
@@ -446,8 +465,8 @@ static struct s_exp *define(struct s_exp *args){
 struct s_exp *eval(struct s_exp *e){
 	struct s_exp *car, *cdr;
 
-	// printf("eval > ");write_sexp(e);printf("\n");
-	// st_dump(global_table);printf("\n\n");
+	//printf("eval > ");write_sexp(e);printf("\n");
+	//st_dump(global_table);printf("\n\n");
 
 	if(e == nil){					/* (1) nil */
 		return nil;
@@ -564,6 +583,8 @@ struct s_exp *apply(struct s_exp *func, struct s_exp *args){
 		return modulo(args);
 	}else if(!strcmp(f_name,"cons")){
 		return cons(p,q);
+	}else if(!strcmp(f_name,"append")){
+		return append(p,q);
 	}else if(!strcmp(f_name,"car")){
 		return p->u.pair.car;
 	}else if(!strcmp(f_name,"cdr")){

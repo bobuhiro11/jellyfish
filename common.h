@@ -77,6 +77,7 @@ struct s_exp *builtin2sexp(char *s);
 struct s_exp *special2sexp(char *s);
 struct s_exp *clojure2sexp(struct s_exp *e);
 struct s_exp *cons(struct s_exp *car, struct s_exp *cdr);
+struct s_exp *append(struct s_exp *exp1, struct s_exp *exp2);
 struct s_exp *eval(struct s_exp *e);
 struct s_exp *apply(struct s_exp *func, struct s_exp *args);
 struct s_exp *apply_clojure_call(struct s_exp *clojure, struct s_exp *args);
