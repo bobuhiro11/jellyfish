@@ -67,7 +67,7 @@ struct s_exp *ht_insert(struct hashtable *table, const char *key, struct s_exp *
 
 /*
  * find data from hash table.
- * return data if success, NULL otherwise.
+ * return data if success, sexp_undef otherwise.
  */
 struct s_exp *ht_find(const struct hashtable *table, const char *key){
 	int len = strlen(key);
@@ -77,12 +77,12 @@ struct s_exp *ht_find(const struct hashtable *table, const char *key){
 	for(n=0;n<HASHTABLE_SIZE;n++){
 		int i = (h + n) % HASHTABLE_SIZE;
 		if(table[i].key[0] == '\0'){
-			return NULL;
+			return sexp_undef;
 		}else if(strncmp(table[i].key, key, KEYWORD_BUFLEN)==0){
 			return table[i].data;
 		}
 	}
-	return NULL;
+	return sexp_undef;
 }
 
 /*

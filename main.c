@@ -199,6 +199,8 @@ static void _write_type(struct s_exp *e){
 	printf(" : ");
 	if(e == nil)
 		printf("nil");
+	if(e == sexp_undef)
+		printf("undef");
 	else if(e == sexp_t || e == sexp_f)
 		printf("boolean");
 	else if(e->type == S_EXP_INTEGER)
@@ -247,6 +249,8 @@ static void _write_sexp(struct s_exp *e, int d){
 
 	if(e == nil){
 		printf("nil");
+	}else if(e == sexp_undef){
+		printf("undef");
 	}else if(e == sexp_t){
 		printf("#t");
 	}else if(e == sexp_f){
@@ -452,10 +456,11 @@ struct s_exp *eval(struct s_exp *e){
 		return e;
 	}else if(e->type == S_EXP_SYMBOL){		/* (2) symbol */
 		struct s_exp *p;
-		if(!(p = st_find(global_table, e->u.symbol))){
-			fprintf(stderr,"Error: undefined symbol \"%s\".\n", 
-					e->u.symbol);
-			return nil;
+		p = st_find(global_table, e->u.symbol);
+		if(p==sexp_undef){
+			//fprintf(stderr,"Error: undefined symbol \"%s\".\n", 
+			//		e->u.symbol);
+			return sexp_undef;
 		}
 		return p;
 	}else if(e->type == S_EXP_BUILTIN){ 		/* (1) builtin */

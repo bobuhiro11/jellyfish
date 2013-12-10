@@ -31,14 +31,20 @@ struct s_exp *st_insert(struct symbol_table *stable, const char *key, struct s_e
 	return ht_insert(stable->table, key, data);
 }
 
+/*
+ * find data from symbol table.
+ * return data if success, sexp_undef otherwise.
+ */
 struct s_exp *st_find(const struct symbol_table *stable, const char *key){
 	struct s_exp *e;
 
-	if(!stable)	return NULL;
+	if(!stable)	return sexp_undef;
 
 	e = ht_find(stable->table, key);
-	if(e)	return e;
-	else 	return st_find(stable->next, key);
+	if(e == sexp_undef)
+		return st_find(stable->next, key);
+	else
+		return e;
 }
 
 void st_init(struct symbol_table *stable){
