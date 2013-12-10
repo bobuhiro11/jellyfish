@@ -450,6 +450,8 @@ struct s_exp *eval(struct s_exp *e){
 		return nil;
 	}else if(e == sexp_t || e == sexp_f){		/* (1) boolean */
 		return e;
+	}else if(e == sexp_undef){			/* (1) undef */
+		return e;
 	}else if(e->type == S_EXP_INTEGER){		/* (1) integer */
 		return e;
 	}else if(e->type == S_EXP_CHARACTER){		/* (1) character */
