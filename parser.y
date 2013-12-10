@@ -36,6 +36,12 @@ exp_noeval : INTEGER    { $$ = integer2sexp($1);}     /* no evalute s-expression
         | NIL           { $$ = nil;}
 	      | TRUE		      { $$ = sexp_t;}
         | FALSE		      { $$ = sexp_f;}
+        | QUOTE LEFT_PAREN members_noeval
+          { 
+               struct s_exp *car = symbol2sexp("quote");
+               struct s_exp *cdr = cons($3, nil);
+               $$ = cons(car,cdr);
+          }
         | LEFT_PAREN members_noeval
           { 
                $$ = $2;

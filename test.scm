@@ -80,4 +80,4 @@
         (cons 
           (car x)
           (quicksort (part >  x (car x))))))))
-(quicksort (quote (20 4 6 2 9 8 10 38 92 88)))
+(quicksort '(20 4 6 2 9 8 10 38 92 88))
