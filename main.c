@@ -450,7 +450,7 @@ static struct s_exp *define(struct s_exp *args){
 	
 	st_insert(global_table, s->u.symbol, p);
 	// sexp_free(s);
-	return sexp_t;
+	return sexp_undef;
 }
 
 /*
