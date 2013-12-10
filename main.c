@@ -510,7 +510,7 @@ struct s_exp *apply_clojure_call(struct s_exp *clojure, struct s_exp *args){
 	struct s_exp *e1, *e2, *e;
 
 	/* new scope */
-	p = st_create(NULL);
+	p = st_create();
 
 	/* insert argument */
 	e1 = clojure->u.pair.car;
@@ -611,7 +611,7 @@ struct s_exp *apply(struct s_exp *func, struct s_exp *args){
 int main(int argc, char **argv) {
 	char *p;
 
-	global_table = st_create(NULL);
+	global_table = st_create();
 	st_init(global_table);
 
 	if(argc > 1){

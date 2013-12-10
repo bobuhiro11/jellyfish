@@ -81,7 +81,7 @@ struct s_exp *eval(struct s_exp *e);
 struct s_exp *apply(struct s_exp *func, struct s_exp *args);
 struct s_exp *apply_clojure_call(struct s_exp *clojure, struct s_exp *args);
 
-struct symbol_table *st_create(struct symbol_table *next);
+struct symbol_table *st_create();
 struct symbol_table *st_destory(struct symbol_table *stable);
 struct s_exp *st_insert(struct symbol_table *stable, const char *key, struct s_exp *data);
 struct s_exp *st_find(const struct symbol_table *stable, const char *key);

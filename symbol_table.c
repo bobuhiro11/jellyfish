@@ -1,10 +1,10 @@
 #include "common.h"
 
-struct symbol_table *st_create(struct symbol_table *next){
+struct symbol_table *st_create(){
 	struct symbol_table *t = malloc(sizeof(struct symbol_table));
 	if(!t)
 		return NULL;
-	t->next = next;
+	t->next = NULL;
 	t->table = ht_create();
 	return t;
 }
