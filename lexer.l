@@ -19,7 +19,7 @@ static int paren_num=0;
 "#t"	                              { return TRUE; }
 "#f"	                              { return FALSE; }
 "'"	                                { return QUOTE; }
-[a-z|\+|\-|\*|\/|?|=|>|<]+          { 
+[a-z|\+|\-|\*|\/|?|=|>|<]+[a-zA-Z0-9]*    {
   int n = strlen(yytext);
   char *p = (char*)malloc(n+1);
   yylval.t_symbol = p;

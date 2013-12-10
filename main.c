@@ -446,6 +446,9 @@ static struct s_exp *define(struct s_exp *args){
 struct s_exp *eval(struct s_exp *e){
 	struct s_exp *car, *cdr;
 
+	// printf("eval > ");write_sexp(e);printf("\n");
+	// st_dump(global_table);printf("\n\n");
+
 	if(e == nil){					/* (1) nil */
 		return nil;
 	}else if(e == sexp_t || e == sexp_f){		/* (1) boolean */
@@ -507,19 +510,22 @@ struct s_exp *apply_clojure_call(struct s_exp *clojure, struct s_exp *args){
 	struct s_exp *e1, *e2, *e;
 
 	/* new scope */
-	global_table = st_create(global_table);
+	p = st_create(NULL);
 
 	/* insert argument */
 	e1 = clojure->u.pair.car;
 	e2 = args;
 
 	while(e1 && e2){
-		st_insert(global_table, 
-				e1->u.pair.car->u.symbol,eval(e2->u.pair.car));
+		st_insert(p, e1->u.pair.car->u.symbol,eval(e2->u.pair.car));
 
 		e1 = e1->u.pair.cdr;
 		e2 = e2->u.pair.cdr;
 	}
+
+	/* add new scope */
+	p->next = global_table;
+	global_table = p;
 
 	/* copy clojure expression and eval */
 	e = sexp_copy(clojure->u.pair.cdr->u.pair.car);
