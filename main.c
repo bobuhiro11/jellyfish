@@ -605,6 +605,8 @@ struct s_exp *apply(struct s_exp *func, struct s_exp *args){
 			return sexp_f;
 	}else if(!strcmp(f_name,"nil?")){
 		return (p==nil) ? sexp_t : sexp_f;
+	}else if(!strcmp(f_name,"null?")){
+		return (p==nil) ? sexp_t : sexp_f;
 	}else if(!strcmp(f_name,"or")){
 		return or(args);
 	}else if(!strcmp(f_name,"and")){

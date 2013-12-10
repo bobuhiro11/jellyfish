@@ -70,6 +70,7 @@ void st_init(struct symbol_table *stable){
 	st_insert(stable, "eq?", builtin2sexp("eq?"));
 	st_insert(stable, "atom?", builtin2sexp("atom?"));
 	st_insert(stable, "nil?", builtin2sexp("nil?"));
+	st_insert(stable, "null?", builtin2sexp("null?"));
 
 	st_insert(stable, "or", builtin2sexp("or"));
 	st_insert(stable, "and", builtin2sexp("and"));
