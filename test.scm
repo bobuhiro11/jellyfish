@@ -22,7 +22,7 @@
 
 (define  tail
   (lambda (x)
-    (if (nil? (cdr x)) (car x)
+    (if (null? (cdr x)) (car x)
       (tail (cdr x)))))
 (tail (quote (3 4 5)))
 
@@ -31,7 +31,7 @@
 ;
 (define max 
   (lambda (x)
-    (if (nil? (cdr x))
+    (if (null? (cdr x))
       (car x) 
       (if (> (car x) (max (cdr x))) 
         (car x) 
@@ -63,8 +63,8 @@
 ; (part <  (quote (2 5 9)) 5) => (2)
 (define part
   (lambda (c y x)
-    (if (nil? y)
-      nil
+    (if (null? y)
+      '()
       (if (c (car y) x)
         (cons (car y) (part c (cdr y) x))
         (part c (cdr y) x)))))
@@ -73,8 +73,8 @@
 
 (define quicksort
   (lambda (x)
-    (if (nil? x)
-      nil
+    (if (null? x)
+      '()
       (append
         (quicksort (part <  x (car x)))
         (cons 
