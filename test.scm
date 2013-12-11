@@ -75,11 +75,13 @@
   (lambda (x)
     (if (null? x)
       '()
-      (append
-        (quicksort (part <  x (car x)))
-        (cons 
-          (car x)
-          (quicksort (part >  x (car x))))))))
+      ((lambda (pivot)
+        (append
+          (quicksort (part <  x pivot))
+          (cons 
+            (car x)
+            (quicksort (part >  x pivot))))) 
+       (car x)))))
 
 (define before '(20 4 6 2 9 8 10 38 92 88))
 (define after (quicksort before))
