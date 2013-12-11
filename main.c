@@ -320,8 +320,14 @@ void write_sexp(struct s_exp *e){
 /* 
  * display s expression
  */
-struct s_exp *display(struct s_exp *e){
-	_write_sexp(e,1);
+struct s_exp *display(struct s_exp *args){
+	struct s_exp *p = args;
+
+	while(p){
+		_write_sexp(eval(p->u.pair.car),1);
+		p = p->u.pair.cdr;
+	}
+
 	if(interactive)
 		printf("\n");
 	return sexp_undef;
@@ -622,7 +628,7 @@ struct s_exp *apply(struct s_exp *func, struct s_exp *args){
 	}else if(!strcmp(f_name,"eval")){
 		return eval(p);
 	}else if(!strcmp(f_name,"display")){
-		return display(p);
+		return display(args);
 	}else if(!strcmp(f_name,"newline")){
 		putc('\n', stdout);
 		return sexp_undef;
