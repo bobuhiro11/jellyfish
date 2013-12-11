@@ -66,6 +66,7 @@ void prompt();
 void prompt_multi();
 int yywrap();
 void write_sexp(struct s_exp *e);
+struct s_exp *display(struct s_exp *e);
 
 struct s_exp *sexp_alloc();
 struct s_exp *sexp_ref(struct s_exp *e);

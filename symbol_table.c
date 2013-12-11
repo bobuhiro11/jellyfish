@@ -66,6 +66,8 @@ void st_init(struct symbol_table *stable){
 	st_insert(stable, "cdr", builtin2sexp("cdr"));
 	st_insert(stable, "list", builtin2sexp("list"));
 	st_insert(stable, "eval", builtin2sexp("eval"));
+	st_insert(stable, "display", builtin2sexp("display"));
+	st_insert(stable, "newline", builtin2sexp("newline"));
 
 	st_insert(stable, "eq?", builtin2sexp("eq?"));
 	st_insert(stable, "atom?", builtin2sexp("atom?"));

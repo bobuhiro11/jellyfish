@@ -273,7 +273,7 @@ static void _write_list(struct s_exp *e, int d){
 }
 
 /*
- * d = 0 if highest position
+ * d = 0 if write type
  *     1 otherwise
  */
 static void _write_sexp(struct s_exp *e, int d){
@@ -315,6 +315,16 @@ static void _write_sexp(struct s_exp *e, int d){
 
 void write_sexp(struct s_exp *e){
 	_write_sexp(e,0);
+}
+
+/* 
+ * display s expression
+ */
+struct s_exp *display(struct s_exp *e){
+	_write_sexp(e,1);
+	if(interactive)
+		printf("\n");
+	return sexp_undef;
 }
 
 /*
@@ -582,9 +592,11 @@ struct s_exp *apply(struct s_exp *func, struct s_exp *args){
 	struct s_exp *p, *q;
 
 	/* p: args[0], q: args[1] */
-	p = eval(args->u.pair.car);
-	if(args->u.pair.cdr != nil)
-		q = eval(args->u.pair.cdr->u.pair.car);
+	if(args != nil){
+		p = eval(args->u.pair.car);
+		if(args->u.pair.cdr != nil)
+			q = eval(args->u.pair.cdr->u.pair.car);
+	}
 
 
 	if(!strcmp(f_name,"+")){
@@ -609,6 +621,11 @@ struct s_exp *apply(struct s_exp *func, struct s_exp *args){
 		return list(args);
 	}else if(!strcmp(f_name,"eval")){
 		return eval(p);
+	}else if(!strcmp(f_name,"display")){
+		return display(p);
+	}else if(!strcmp(f_name,"newline")){
+		putc('\n', stdout);
+		return sexp_undef;
 	}else if(!strcmp(f_name,"eq?")){
 		return (p==q) ? sexp_t : sexp_f;
 	}else if(!strcmp(f_name,"atom?")){

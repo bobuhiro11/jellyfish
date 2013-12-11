@@ -80,4 +80,13 @@
         (cons 
           (car x)
           (quicksort (part >  x (car x))))))))
-(quicksort '(20 4 6 2 9 8 10 38 92 88))
+
+(define before '(20 4 6 2 9 8 10 38 92 88))
+(define after (quicksort before))
+
+(display "before = ")
+(display before)
+(newline)
+(display "after  = ")
+(display after)
+(newline)
