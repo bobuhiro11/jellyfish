@@ -26,4 +26,12 @@ static int paren_num=0;
   strcpy(yylval.t_symbol,yytext);
   return SYMBOL;
 }
+\"(\\.|[^"])*\"                           {
+  int n = strlen(yytext);
+  char *p = (char*)malloc(n+1);
+  memset(p, 0, n+1);
+  yylval.t_symbol = p;
+  strncpy(yylval.t_string, yytext+1, n-2);
+  return STRING;
+}
 %%

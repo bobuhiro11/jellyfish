@@ -144,6 +144,16 @@ struct s_exp *symbol2sexp(char *s){
 }
 
 /*
+ * create s_exp from string
+ */
+struct s_exp *string2sexp(char *s){
+	struct s_exp *e =  sexp_alloc();
+	e->type = S_EXP_STRING;
+	(e->u).string = s;
+	return e;
+}
+
+/*
  * create s_exp from builtin
  */
 struct s_exp *builtin2sexp(char *s){
@@ -226,6 +236,8 @@ static void _write_type(struct s_exp *e){
 		printf("integer");
 	else if(e->type == S_EXP_CHARACTER)
 		printf("character");
+	else if(e->type == S_EXP_STRING)
+		printf("string");
 	else if(e->type == S_EXP_SYMBOL)
 		printf("symbol");
 	else if(e->type == S_EXP_SPECIAL)
@@ -278,6 +290,8 @@ static void _write_sexp(struct s_exp *e, int d){
 		printf("%d",e->u.integer);
 	}else if(e->type == S_EXP_CHARACTER){
 		printf("%c",e->u.character);
+	}else if(e->type == S_EXP_STRING){
+		printf("%s",e->u.string);
 	}else if(e->type == S_EXP_SYMBOL){
 		printf("%s",e->u.symbol);
 	}else if(e->type == S_EXP_BUILTIN){
@@ -477,6 +491,8 @@ struct s_exp *eval(struct s_exp *e){
 	}else if(e->type == S_EXP_INTEGER){		/* (1) integer */
 		return e;
 	}else if(e->type == S_EXP_CHARACTER){		/* (1) character */
+		return e;
+	}else if(e->type == S_EXP_STRING){		/* (1) character */
 		return e;
 	}else if(e->type == S_EXP_SYMBOL){		/* (2) symbol */
 		struct s_exp *p;

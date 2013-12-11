@@ -27,10 +27,11 @@ struct pair{
 #define S_EXP_PAIR 	1
 #define S_EXP_INTEGER	2
 #define S_EXP_CHARACTER	3
-#define S_EXP_SYMBOL	4
-#define S_EXP_BUILTIN	5
-#define S_EXP_SPECIAL	6
-#define S_EXP_CLOJURE	7
+#define S_EXP_STRING 	4
+#define S_EXP_SYMBOL	5
+#define S_EXP_BUILTIN	6
+#define S_EXP_SPECIAL	7
+#define S_EXP_CLOJURE	8
 
 struct s_exp{                   
 	int ref;
@@ -39,6 +40,7 @@ struct s_exp{
 		struct pair pair;
 		int integer;
 		char character;
+		char *string;
 		char *symbol;
 		char *builtin;
 		char *special;
@@ -73,6 +75,7 @@ void sexp_free(struct s_exp *e);
 struct s_exp *integer2sexp(int i);
 struct s_exp *character2sexp(char c);
 struct s_exp *symbol2sexp(char *s);
+struct s_exp *string2sexp(char *s);
 struct s_exp *builtin2sexp(char *s);
 struct s_exp *special2sexp(char *s);
 struct s_exp *clojure2sexp(struct s_exp *e);

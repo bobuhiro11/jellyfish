@@ -9,6 +9,7 @@
   int  t_int;
   char t_char;
   char *t_symbol;
+  char *t_string;
   struct s_exp *t_sexp;
 }
 
@@ -16,6 +17,7 @@
 %token <t_int>      INTEGER 
 %token <t_char>     CHARACTER
 %token <t_symbol>   SYMBOL
+%token <t_string>   STRING
 %token NIL
 %token TRUE
 %token FALSE
@@ -33,6 +35,7 @@ input   :
 exp_noeval : INTEGER    { $$ = integer2sexp($1);}     /* no evalute s-expression for special operator */
         | CHARACTER     { $$ = character2sexp($1);}
         | SYMBOL        { $$ = symbol2sexp($1);}
+        | STRING        { $$ = string2sexp($1);}
         | NIL           { $$ = nil;}
 	      | TRUE		      { $$ = sexp_t;}
         | FALSE		      { $$ = sexp_f;}
