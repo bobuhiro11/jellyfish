@@ -53,6 +53,7 @@ void st_init(struct symbol_table *stable){
 	st_insert(stable, "define", special2sexp("define"));
 	st_insert(stable, "symbols", special2sexp("symbols"));
 	st_insert(stable, "lambda", special2sexp("lambda"));
+	st_insert(stable, "begin", special2sexp("begin"));
 
 	st_insert(stable, "+", builtin2sexp("+"));
 	st_insert(stable, "-", builtin2sexp("-"));

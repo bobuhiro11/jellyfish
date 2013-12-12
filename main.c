@@ -220,6 +220,20 @@ struct s_exp *append(struct s_exp *exp1, struct s_exp *exp2){
 }
 
 /*
+ * begin
+ */
+struct s_exp *begin(struct s_exp *args){
+	struct s_exp *rc=sexp_undef; 
+	struct s_exp *e = args;
+
+	while(e != nil){
+		rc = eval(e->u.pair.car);
+		e = e->u.pair.cdr;
+	}
+	return rc;
+}
+
+/*
  * return true if the type is pair and the cdr is nil end.
  */
 static int is_list(struct s_exp *e){
@@ -529,8 +543,6 @@ struct s_exp *eval(struct s_exp *e){
 		struct s_exp *p;
 		p = st_find(global_table, e->u.symbol);
 		if(p==sexp_undef){
-			//fprintf(stderr,"Error: undefined symbol \"%s\".\n", 
-			//		e->u.symbol);
 			return sexp_undef;
 		}
 		return p;
@@ -558,6 +570,9 @@ struct s_exp *eval(struct s_exp *e){
 			return sexp_t;
 		}else if(!strcmp(car->u.symbol,"lambda")){
 			struct s_exp *p = clojure2sexp(cdr);
+			return p;
+		}else if(!strcmp(car->u.symbol,"begin")){
+			struct s_exp *p = begin(cdr);
 			return p;
 		}
 	}else if(car->type == S_EXP_BUILTIN){			/* (4) builtin function apply */
