@@ -88,3 +88,15 @@
 (newline)
 (display "after  = " after)
 (newline)
+
+;
+; 継続
+;
+(define (return x)
+  x)
+(define (k+ a b k)
+  (k (+ a b)))
+(define (k* a b k)
+  (k (* a b)))
+(display (k+ 1 2 (lambda (x) (k* x 3 return))))
+(newline)
