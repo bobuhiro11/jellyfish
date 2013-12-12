@@ -4,16 +4,16 @@
  * Murmurhash2 By Austin Appleby
  * https://sites.google.com/site/murmurhash/
  */
-static uint32_t MurmurHash2( const void * key, int len, uint32_t seed )
+static uint32_t MurmurHash2(const void * key, int len, uint32_t seed)
 {
+
 	uint32_t m = 0x5bd1e995;
 	uint32_t r = 24;
 
 	uint32_t h = seed ^ len;
 	uint8_t * data = (uint8_t *)key;
 
-	while(len >= 4)
-	{
+	while(len >= 4){
 		uint32_t k = *(uint32_t *)data;
 
 		k *= m;
@@ -27,8 +27,7 @@ static uint32_t MurmurHash2( const void * key, int len, uint32_t seed )
 		len -= 4;
 	}
 
-	switch(len)
-	{
+	switch(len){
 		case 3: h ^= data[2] << 16;
 		case 2: h ^= data[1] << 8;
 		case 1: h ^= data[0];
@@ -46,7 +45,8 @@ static uint32_t MurmurHash2( const void * key, int len, uint32_t seed )
  * insert data to hash table.
  * return data if success, NULL otherwise.
  */
-struct s_exp *ht_insert(struct hashtable *table, const char *key, struct s_exp *data){
+struct s_exp *ht_insert(struct hashtable *table, const char *key, struct s_exp *data)
+{
 	int len = strlen(key);
 	uint32_t h = MurmurHash2( (void*)key, len+1, (uint32_t)table);
 
@@ -69,18 +69,18 @@ struct s_exp *ht_insert(struct hashtable *table, const char *key, struct s_exp *
  * find data from hash table.
  * return data if success, sexp_undef otherwise.
  */
-struct s_exp *ht_find(const struct hashtable *table, const char *key){
+struct s_exp *ht_find(const struct hashtable *table, const char *key)
+{
 	int len = strlen(key);
 	uint32_t h = MurmurHash2( (void*)key, len+1, (uint32_t)table);
 
 	int n;
 	for(n=0;n<HASHTABLE_SIZE;n++){
 		int i = (h + n) % HASHTABLE_SIZE;
-		if(table[i].key[0] == '\0'){
+		if(table[i].key[0] == '\0')
 			return sexp_undef;
-		}else if(strncmp(table[i].key, key, KEYWORD_BUFLEN)==0){
+		else if(strncmp(table[i].key, key, KEYWORD_BUFLEN)==0)
 			return table[i].data;
-		}
 	}
 	return sexp_undef;
 }
@@ -88,7 +88,8 @@ struct s_exp *ht_find(const struct hashtable *table, const char *key){
 /*
  * dump hash table.
  */
-void ht_dump(const struct hashtable *table){
+void ht_dump(const struct hashtable *table)
+{
 	int i;
 	for(i=0;i<HASHTABLE_SIZE;i++)
 		if(table[i].key[0] != '\0'){
@@ -102,7 +103,8 @@ void ht_dump(const struct hashtable *table){
  * create hash table.
  * return table if success, NULL otherwise.
  */
-struct hashtable* ht_create(){
+struct hashtable* ht_create()
+{
 	struct hashtable *table;
 	int i;
 
@@ -112,13 +114,14 @@ struct hashtable* ht_create(){
 	memset(table, 0, HASHTABLE_SIZE*sizeof(struct hashtable));
 
 	for(i=0;i<HASHTABLE_SIZE;i++)
-		table[i].data=nil;
+		table[i].data = nil;
 	return table;
 }
 
 /*
  * destory hash table.
  */
-void ht_destory(struct hashtable *table){
+void ht_destory(struct hashtable *table)
+{
 	free(table);
 }

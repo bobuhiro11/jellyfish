@@ -23,5 +23,5 @@ $(PARSER).c : $(PARSER).y
 $(LEXER).c : $(LEXER).l
 	$(FLEX) -o $(LEXER).c -I $(LEXER).l
 
-clean : 
+clean :
 	rm $(TARGET) $(PARSER).c $(PARSER).h $(LEXER).c

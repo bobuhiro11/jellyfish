@@ -1,33 +1,38 @@
 #include "common.h"
 
-struct symbol_table *st_create(){
-	struct symbol_table *t = malloc(sizeof(struct symbol_table));
-	if(!t)
+struct symbol_table *st_create()
+{
+	struct symbol_table *rc = malloc(sizeof(struct symbol_table));
+	if(!rc)
 		return NULL;
-	t->next = NULL;
-	t->table = ht_create();
-	return t;
+	rc->next = NULL;
+	rc->table = ht_create();
+	return rc;
 }
 
-struct symbol_table *st_destory(struct symbol_table *stable){
+struct symbol_table *st_destory(struct symbol_table *stable)
+{
 	ht_destory(stable->table);
 	free(stable);
 }
 
-static void _st_dump(const struct symbol_table *stable, int depth){
-
-	if(!stable) return;
+static void _st_dump(const struct symbol_table *stable, int depth)
+{
+	if(!stable)
+		return;
 
 	printf("**symbol table scope %d**\n",depth);
 	ht_dump(stable->table);
 	_st_dump(stable->next, depth+1);
 }
 
-void st_dump(const struct symbol_table *stable){
+void st_dump(const struct symbol_table *stable)
+{
 	_st_dump(stable,0);
 }
 
-struct s_exp *st_insert(struct symbol_table *stable, const char *key, struct s_exp *data){
+struct s_exp *st_insert(struct symbol_table *stable, const char *key, struct s_exp *data)
+{
 	return ht_insert(stable->table, key, data);
 }
 
@@ -35,10 +40,12 @@ struct s_exp *st_insert(struct symbol_table *stable, const char *key, struct s_e
  * find data from symbol table.
  * return data if success, sexp_undef otherwise.
  */
-struct s_exp *st_find(const struct symbol_table *stable, const char *key){
+struct s_exp *st_find(const struct symbol_table *stable, const char *key)
+{
 	struct s_exp *e;
 
-	if(!stable)	return sexp_undef;
+	if(!stable)
+		return sexp_undef;
 
 	e = ht_find(stable->table, key);
 	if(e == sexp_undef)
@@ -47,7 +54,8 @@ struct s_exp *st_find(const struct symbol_table *stable, const char *key){
 		return e;
 }
 
-void st_init(struct symbol_table *stable){
+void st_init(struct symbol_table *stable)
+{
 	st_insert(stable, "quote", special2sexp("quote"));
 	st_insert(stable, "if", special2sexp("if"));
 	st_insert(stable, "define", special2sexp("define"));
