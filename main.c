@@ -72,6 +72,13 @@ struct s_exp *sexp_copy(struct s_exp *e){
 	}else if(e->type == S_EXP_CHARACTER){
 		p->type = S_EXP_CHARACTER;
 		p->u.character = e->u.character;
+	}else if(e->type == S_EXP_STRING){
+		p->type = S_EXP_STRING;
+		p->u.character = e->u.string;
+		len = strlen( e->u.string );
+		p->u.string = malloc(len+1);
+		memset(p->u.string, 0, len+1);
+		strncpy(p->u.string, e->u.string, len);
 	}else if(e->type == S_EXP_SYMBOL){
 		p->type = S_EXP_SYMBOL;
 		len = strlen( e->u.symbol );
@@ -516,7 +523,7 @@ struct s_exp *eval(struct s_exp *e){
 		return e;
 	}else if(e->type == S_EXP_CHARACTER){		/* (1) character */
 		return e;
-	}else if(e->type == S_EXP_STRING){		/* (1) character */
+	}else if(e->type == S_EXP_STRING){		/* (1) string */
 		return e;
 	}else if(e->type == S_EXP_SYMBOL){		/* (2) symbol */
 		struct s_exp *p;
