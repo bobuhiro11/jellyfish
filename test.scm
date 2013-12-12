@@ -61,18 +61,16 @@
 
 ; (part >= (quote (2 5 9)) 5) => (5 9)
 ; (part <  (quote (2 5 9)) 5) => (2)
-(define part
-  (lambda (c y x)
+(define (part c y x)
     (if (null? y)
       '()
       (if (c (car y) x)
         (cons (car y) (part c (cdr y) x))
-        (part c (cdr y) x)))))
+        (part c (cdr y) x))))
 (part >= (quote (2 5 9)) 5)
 (part <  (quote (2 5 9)) 5)
 
-(define quicksort
-  (lambda (x)
+(define (quicksort x)
     (if (null? x)
       '()
       ((lambda (pivot)
@@ -81,7 +79,7 @@
           (cons 
             (car x)
             (quicksort (part >  x pivot))))) 
-       (car x)))))
+       (car x))))
 
 (define before '(20 4 6 2 9 8 10 38 92 88))
 (define after (quicksort before))

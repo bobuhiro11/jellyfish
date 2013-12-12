@@ -475,10 +475,18 @@ static struct s_exp *_if(struct s_exp *args){
 static struct s_exp *define(struct s_exp *args){
 	struct s_exp *s = args->u.pair.car;
 	struct s_exp *p = sexp_ref(args->u.pair.cdr->u.pair.car);
+	struct s_exp *q;
+
+	if(s->type == S_EXP_PAIR){	/* syntax sugar */
+		q = s->u.pair.cdr;
+		p = cons(q, cons(p,nil));
+		p = clojure2sexp(p);
+		s = s->u.pair.car;
+	}
 
 	p = eval(p);
-	
 	st_insert(global_table, s->u.symbol, p);
+
 	// sexp_free(s);
 	return sexp_undef;
 }
