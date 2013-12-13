@@ -1,10 +1,10 @@
 ;
 ; 階乗
 ;
-(define f 
+(define f
   (lambda (x)
-    (if (<= x 1) 
-      1 
+    (if (<= x 1)
+      1
       (* x (f (- x 1))))))
 
 (f 1)
@@ -29,12 +29,12 @@
 ;
 ; 最大値
 ;
-(define max 
+(define max
   (lambda (x)
     (if (null? (cdr x))
-      (car x) 
-      (if (> (car x) (max (cdr x))) 
-        (car x) 
+      (car x)
+      (if (> (car x) (max (cdr x)))
+        (car x)
         (max (cdr x))))))
 (max (quote (4 2 3 1)))
 
@@ -42,12 +42,12 @@
 ; 最大公約数
 ;
 (define gcd
-  (lambda (x y) 
+  (lambda (x y)
     (if (> x y)
       (gcd2 x y)
       (gcd2 y x))))
 
-(define gcd2 
+(define gcd2
   (lambda (x y)
     (if (= y 0)
       x
@@ -76,9 +76,9 @@
       ((lambda (pivot)
         (append
           (quicksort (part <  x pivot))
-          (cons 
+          (cons
             (car x)
-            (quicksort (part >  x pivot))))) 
+            (quicksort (part >  x pivot)))))
        (car x))))
 
 (define before '(20 4 6 2 9 8 10 38 92 88))
