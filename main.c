@@ -256,43 +256,27 @@ begin(struct s_exp *args)
 static int
 is_list(struct s_exp *e)
 {
-	if(e == nil)
-		return 1;
-	else if(e->type != S_EXP_PAIR)
-		return 0;
-	else
-		return is_list(e->u.pair.cdr);
+	if(e == nil)			return 1;
+	else if(e->type != S_EXP_PAIR)	return 0;
+	else 				return is_list(e->u.pair.cdr);
 }
 
 static void
 _write_type(struct s_exp *e)
 {
 	printf(" : ");
-	if(e == nil)
-		printf("nil");
-	else if(e == sexp_undef)
-		printf("undef");
-	else if(e == sexp_t || e == sexp_f)
-		printf("boolean");
-	else if(e->type == S_EXP_INTEGER)
-		printf("integer");
-	else if(e->type == S_EXP_CHARACTER)
-		printf("character");
-	else if(e->type == S_EXP_STRING)
-		printf("string");
-	else if(e->type == S_EXP_SYMBOL)
-		printf("symbol");
-	else if(e->type == S_EXP_SPECIAL)
-		printf("special");
-	else if(e->type == S_EXP_BUILTIN)
-		printf("builtin");
-	else if(e->type == S_EXP_CLOJURE)
-		printf("clojure");
-	else if(e->type == S_EXP_PAIR)
-		if(is_list(e))
-			printf("list");
-		else
-			printf("pair");
+
+	if(e == nil)				printf("nil");
+	else if(e == sexp_undef)		printf("undef");
+	else if(e == sexp_t || e == sexp_f)	printf("boolean");
+	else if(e->type == S_EXP_INTEGER)	printf("integer");
+	else if(e->type == S_EXP_CHARACTER)	printf("character");
+	else if(e->type == S_EXP_STRING)	printf("string");
+	else if(e->type == S_EXP_SYMBOL)	printf("symbol");
+	else if(e->type == S_EXP_SPECIAL)	printf("special");
+	else if(e->type == S_EXP_BUILTIN)	printf("builtin");
+	else if(e->type == S_EXP_CLOJURE)	printf("clojure");
+	else if(e->type == S_EXP_PAIR)		is_list(e) ? printf("list") : printf("pair");
 }
 
 static void _write_sexp(struct s_exp *e, int d);
@@ -317,6 +301,15 @@ _write_list(struct s_exp *e, int d)
 	}
 }
 
+static void
+_write_pair(struct s_exp *e){
+	printf("(");
+	_write_sexp(e->u.pair.car,1);
+	printf(" . ");
+	_write_sexp(e->u.pair.cdr,1);
+	printf(")");
+}
+
 /*
  * d = 0 if write type
  *     1 otherwise
@@ -325,40 +318,21 @@ static void
 _write_sexp(struct s_exp *e, int d)
 {
 
-	if(e == nil)
-		printf("nil");
-	else if(e == sexp_undef)
-	       printf("undef");
-	else if(e == sexp_t)
-	       printf("#t");
-	else if(e == sexp_f)
-	       printf("#f");
-	else if(e->type == S_EXP_INTEGER)
-	       printf("%d",e->u.integer);
-	else if(e->type == S_EXP_CHARACTER)
-	       printf("%c",e->u.character);
-	else if(e->type == S_EXP_STRING)
-	       printf("%s",e->u.string);
-	else if(e->type == S_EXP_SYMBOL)
-	       printf("%s",e->u.symbol);
-	else if(e->type == S_EXP_BUILTIN)
-	       printf("%s",e->u.builtin);
-	else if(e->type == S_EXP_SPECIAL)
-	       printf("%s",e->u.special);
-	else if(e->type == S_EXP_CLOJURE)
-	       _write_list(e,0);
-	else if(is_list(e))			/* for list */
-	       _write_list(e,0);
-	else{					/* dotted pair */
-		printf("(");
-		_write_sexp(e->u.pair.car,1);
-		printf(" . ");
-		_write_sexp(e->u.pair.cdr,1);
-		printf(")");
-	}
+	if(e == nil)				printf("nil");
+	else if(e == sexp_undef)		printf("undef");
+	else if(e == sexp_t)			printf("#t");
+	else if(e == sexp_f)			printf("#f");
+	else if(e->type == S_EXP_INTEGER)	printf("%d",e->u.integer);
+	else if(e->type == S_EXP_CHARACTER)	printf("%c",e->u.character);
+	else if(e->type == S_EXP_STRING)	printf("%s",e->u.string);
+	else if(e->type == S_EXP_SYMBOL)	printf("%s",e->u.symbol);
+	else if(e->type == S_EXP_BUILTIN)	printf("%s",e->u.builtin);
+	else if(e->type == S_EXP_SPECIAL)	printf("%s",e->u.special);
+	else if(e->type == S_EXP_CLOJURE)	_write_list(e,0);
+	else if(is_list(e))			_write_list(e,0);
+	else					_write_pair(e);
 
-	if(!d)
-		_write_type(e);
+	if(!d)					_write_type(e);
 }
 
 void
@@ -390,7 +364,7 @@ newline(){
 
 static struct s_exp *
 atom(struct s_exp *p){
-	if(is_singleton(p) 
+	if(is_singleton(p)
 		|| p->type == S_EXP_INTEGER
 		|| p->type == S_EXP_CHARACTER
 		|| p->type == S_EXP_SYMBOL)
