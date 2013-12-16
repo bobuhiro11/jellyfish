@@ -26,9 +26,10 @@ static void _st_dump(const struct symbol_table *stable, int depth)
 	_st_dump(stable->next, depth+1);
 }
 
-void st_dump(const struct symbol_table *stable)
+struct s_exp *st_dump(const struct symbol_table *stable)
 {
 	_st_dump(stable,0);
+	return sexp_undef;
 }
 
 struct s_exp *st_insert(struct symbol_table *stable, const char *key, struct s_exp *data)

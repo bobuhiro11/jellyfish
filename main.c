@@ -524,15 +524,6 @@ static struct s_exp *define(struct s_exp *args)
 	return sexp_undef;
 }
 
-/*
- * eval s expression
- *
- * 	(1) atom
- * 	(2) symbol
- * 	(3) special operation (so arg1 arg2)
- * 	(4) builtin function  (bf arg1 arg2)
- * 	(5) clojure           (cl arg1 arg2)
- */
 struct s_exp *eval(struct s_exp *e)
 {
 	struct s_exp *car, *cdr;
@@ -540,61 +531,49 @@ struct s_exp *eval(struct s_exp *e)
 	//printf("eval > ");write_sexp(e);printf("\n");
 	//st_dump(global_table);printf("\n\n");
 
-	if(e == nil)					/* (1) nil */
-		return nil;
-	else if(e == sexp_t || e == sexp_f)		/* (1) boolean */
-	       return e;
-	else if(e == sexp_undef)			/* (1) undef */
-	       return e;
-	else if(e->type == S_EXP_INTEGER)		/* (1) integer */
-	       return e;
-	else if(e->type == S_EXP_CHARACTER)		/* (1) character */
-	       return e;
-	else if(e->type == S_EXP_STRING)		/* (1) string */
-	       return e;
-	else if(e->type == S_EXP_SYMBOL){		/* (2) symbol */
-		struct s_exp *p;
-		p = st_find(global_table, e->u.symbol);
-		if(p==sexp_undef)
-			return sexp_undef;
-		return p;
-	}else if(e->type == S_EXP_BUILTIN) 		/* (1) builtin */
+	if(e == nil || e == sexp_t || e == sexp_f || e == sexp_undef)
 		return e;
-	else if(e->type == S_EXP_SPECIAL)		/* (2) special */
-	       return e;
-	else if(e->type == S_EXP_CLOJURE)		/* (2) clojure */
-	       return e;
+
+	switch(e->type){
+		case S_EXP_INTEGER:
+		case S_EXP_CHARACTER:
+		case S_EXP_STRING:
+		case S_EXP_BUILTIN:
+		case S_EXP_SPECIAL:
+		case S_EXP_CLOJURE:
+			return e;
+		case S_EXP_SYMBOL:
+			return st_find(global_table, e->u.symbol);
+	}
 
 	car = e->u.pair.car;
 	cdr = e->u.pair.cdr;
 
 	car = eval(car);
-	if(car->type == S_EXP_SPECIAL){				/* (3) special operation */
-		if(!strcmp(car->u.symbol, "quote"))
-			return cdr->u.pair.car;
-		else if(!strcmp(car->u.symbol,"if"))
-			return _if(cdr);
-		else if(!strcmp(car->u.symbol,"define"))
-			return define(cdr);
-		else if(!strcmp(car->u.symbol,"symbols")){
-			st_dump(global_table);
-			return sexp_t;
-		}else if(!strcmp(car->u.symbol,"lambda")){
-			struct s_exp *p = clojure2sexp(cdr);
-			return p;
-		}else if(!strcmp(car->u.symbol,"begin")){
-			struct s_exp *p = begin(cdr);
-			return p;
-		}
-	}else if(car->type == S_EXP_BUILTIN)			/* (4) builtin function apply */
-		return apply(car,cdr);
-	else if(car->type == S_EXP_CLOJURE)			/* (5) clojure apply */
-		return apply_clojure_call(car,cdr);
+	switch(car->type){
+		case S_EXP_SPECIAL:	return apply_special_call(car,cdr);
+		case S_EXP_CLOJURE:	return apply_clojure_call(car,cdr);
+		case S_EXP_BUILTIN:	return apply(car,cdr);
+	}
+
+	return nil;
+
 }
 
-/*
- * apply clojure call
- */
+struct s_exp *apply_special_call(struct s_exp *car, struct s_exp *cdr)
+{
+	struct s_exp *rc = nil;
+
+	if(!strcmp(car->u.symbol, "quote"))		rc = cdr->u.pair.car;
+	else if(!strcmp(car->u.symbol,"if"))		rc = _if(cdr);
+	else if(!strcmp(car->u.symbol,"define"))	rc = define(cdr);
+	else if(!strcmp(car->u.symbol,"symbols"))	rc = st_dump(global_table);
+	else if(!strcmp(car->u.symbol,"lambda"))	rc = clojure2sexp(cdr);
+	else if(!strcmp(car->u.symbol,"begin"))		rc = begin(cdr);
+
+	return rc;
+}
+
 struct s_exp *apply_clojure_call(struct s_exp *clojure, struct s_exp *args)
 {
 	struct symbol_table *p;
@@ -602,8 +581,9 @@ struct s_exp *apply_clojure_call(struct s_exp *clojure, struct s_exp *args)
 
 	p = st_create();				/* new scope*/
 
-	e1 = clojure->u.pair.car;			/* insert argument */
+	e1 = clojure->u.pair.car;			/* insert and eval arguments */
 	e2 = args;
+
 	while(e1 && e2){
 		st_insert(p, e1->u.pair.car->u.symbol,eval(e2->u.pair.car));
 
@@ -624,9 +604,6 @@ struct s_exp *apply_clojure_call(struct s_exp *clojure, struct s_exp *args)
 	return rc;
 }
 
-/*
- * apply basic function
- */
 struct s_exp *apply(struct s_exp *func, struct s_exp *args)
 {
 	char *f_name = func->u.symbol;
