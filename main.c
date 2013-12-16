@@ -551,16 +551,17 @@ struct s_exp *eval(struct s_exp *e)
 
 	car = eval(car);
 	switch(car->type){
-		case S_EXP_SPECIAL:	return apply_special_call(car,cdr);
-		case S_EXP_CLOJURE:	return apply_clojure_call(car,cdr);
-		case S_EXP_BUILTIN:	return apply(car,cdr);
+		case S_EXP_SPECIAL:	return apply_special(car,cdr);
+		case S_EXP_CLOJURE:	return apply_clojure(car,cdr);
+		case S_EXP_BUILTIN:	return apply_builtin(car,cdr);
 	}
 
 	return nil;
 
 }
 
-struct s_exp *apply_special_call(struct s_exp *car, struct s_exp *cdr)
+struct s_exp *
+apply_special(struct s_exp *car, struct s_exp *cdr)
 {
 	struct s_exp *rc = nil;
 
@@ -574,7 +575,8 @@ struct s_exp *apply_special_call(struct s_exp *car, struct s_exp *cdr)
 	return rc;
 }
 
-struct s_exp *apply_clojure_call(struct s_exp *clojure, struct s_exp *args)
+struct s_exp *
+apply_clojure(struct s_exp *clojure, struct s_exp *args)
 {
 	struct symbol_table *p;
 	struct s_exp *e1, *e2, *rc;
@@ -604,47 +606,35 @@ struct s_exp *apply_clojure_call(struct s_exp *clojure, struct s_exp *args)
 	return rc;
 }
 
-struct s_exp *apply(struct s_exp *func, struct s_exp *args)
+struct s_exp *
+apply_builtin(struct s_exp *func, struct s_exp *args)
 {
 	char *f_name = func->u.symbol;
-	struct s_exp *p, *q;
+	struct s_exp *p, *q, *rc=nil;
 
-	if(args != nil){ 				/* p: args[0], q: args[1] */
-		p = eval(args->u.pair.car);
-		if(args->u.pair.cdr != nil)
-			q = eval(args->u.pair.cdr->u.pair.car);
+	/* eval args */
+	p = args;
+	while(p != nil){
+		p->u.pair.car = eval(p->u.pair.car);
+		p = p->u.pair.cdr;
 	}
 
-
-	if(!strcmp(f_name,"+"))
-		return add(args);
-	else if(!strcmp(f_name,"-"))
-	       return minus(args);
-	else if(!strcmp(f_name,"*"))
-	       return multi(args);
-	else if(!strcmp(f_name,"/"))
-	       return divi(args);
-	else if(!strcmp(f_name,"modulo"))
-	       return modulo(args);
-	else if(!strcmp(f_name,"cons"))
-	       return cons(p,q);
-	else if(!strcmp(f_name,"append"))
-	       return append(p,q);
-	else if(!strcmp(f_name,"car"))
-	       return p->u.pair.car;
-	else if(!strcmp(f_name,"cdr"))
-	       return p->u.pair.cdr;
-	else if(!strcmp(f_name,"list"))
-	       return list(args);
-	else if(!strcmp(f_name,"eval"))
-	       return eval(p);
-	else if(!strcmp(f_name,"display"))
-	       return display(args);
+	if(!strcmp(f_name,"+"))			rc = add(args);
+	else if(!strcmp(f_name,"-"))		rc = minus(args);
+	else if(!strcmp(f_name,"*"))		rc = multi(args);
+	else if(!strcmp(f_name,"/"))		rc = divi(args);
+	else if(!strcmp(f_name,"modulo"))	rc = modulo(args);
+	else if(!strcmp(f_name,"cons"))		rc = cons(p,q);
+	else if(!strcmp(f_name,"append"))	rc = append(p,q);
+	else if(!strcmp(f_name,"car"))		rc = p->u.pair.car;
+	else if(!strcmp(f_name,"cdr"))		rc = p->u.pair.cdr;
+	else if(!strcmp(f_name,"list"))		rc = list(args);
+	else if(!strcmp(f_name,"eval"))		rc = eval(p);
+	else if(!strcmp(f_name,"display"))	rc = display(args);
 	else if(!strcmp(f_name,"newline")){
 		putc('\n', stdout);
 		return sexp_undef;
-	}else if(!strcmp(f_name,"eq?"))
-		return (p==q) ? sexp_t : sexp_f;
+	}else if(!strcmp(f_name,"eq?"))		rc = p==q ? sexp_t : sexp_f;
 	else if(!strcmp(f_name,"atom?")){
 		if(p==nil || p==sexp_t || p==sexp_f
 			|| p->type == S_EXP_INTEGER
@@ -653,28 +643,18 @@ struct s_exp *apply(struct s_exp *func, struct s_exp *args)
 			return sexp_t;
 		else
 			return sexp_f;
-	}else if(!strcmp(f_name,"nil?"))
-		return (p==nil) ? sexp_t : sexp_f;
-	else if(!strcmp(f_name,"null?"))
-	       return (p==nil) ? sexp_t : sexp_f;
-	else if(!strcmp(f_name,"or"))
-	       return or(args);
-	else if(!strcmp(f_name,"and"))
-	       return and(args);
-	else if(!strcmp(f_name,"not"))
-	       return p == sexp_f ? sexp_t : sexp_f;
-	else if(!strcmp(f_name,"="))
-	       return (p->u.integer == q->u.integer) ? sexp_t : sexp_f;
-	else if(!strcmp(f_name,">"))
-	       return (p->u.integer > q->u.integer) ? sexp_t : sexp_f;
-	else if(!strcmp(f_name,"<"))
-	       return (p->u.integer < q->u.integer) ? sexp_t : sexp_f;
-	else if(!strcmp(f_name,"<="))
-	       return (p->u.integer <= q->u.integer) ? sexp_t : sexp_f;
-	else if(!strcmp(f_name,">="))
-		return (p->u.integer >= q->u.integer) ? sexp_t : sexp_f;
-	fprintf(stderr, "undefied variable %s.",f_name);
-	return nil;
+	}else if(!strcmp(f_name,"nil?"))	rc = p==nil ? sexp_t : sexp_f;
+	else if(!strcmp(f_name,"null?"))	rc = p==nil ? sexp_t : sexp_f;
+	else if(!strcmp(f_name,"or"))		rc = or(args);
+	else if(!strcmp(f_name,"and"))		rc = and(args);
+	else if(!strcmp(f_name,"not"))		rc = p == sexp_f ? sexp_t : sexp_f;
+	else if(!strcmp(f_name,"="))		rc = p->u.integer == q->u.integer ? sexp_t : sexp_f;
+	else if(!strcmp(f_name,">"))		rc = p->u.integer > q->u.integer ? sexp_t : sexp_f;
+	else if(!strcmp(f_name,"<"))		rc = p->u.integer < q->u.integer ? sexp_t : sexp_f;
+	else if(!strcmp(f_name,"<="))		rc = p->u.integer <= q->u.integer ? sexp_t : sexp_f;
+	else if(!strcmp(f_name,">="))		rc = p->u.integer >= q->u.integer ? sexp_t : sexp_f;
+
+	return rc;
 }
 
 
