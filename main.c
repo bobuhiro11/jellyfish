@@ -1,36 +1,31 @@
 #include "common.h"
 
-int interactive; 			/* true if interactive mode is enable */
-int linenum=0;				/* line number incremented by parser */
-struct symbol_table *global_table;	/* global symbol table */
+int interactive;
+int linenum=0;
+struct symbol_table *global_table;
 
-/*
- *  invalid token, grammar
- */
-void yyerror(char* s)
+void
+yyerror(char* s)
 {
 	printf("Error: %s\n", s);
 }
 
-/*
- * show prompt before input
- */
-void prompt()
+void
+prompt()
 {
 	if(interactive)
 		printf("[%d]> ",linenum++);
 }
 
-/*
- * show multi line prompt before input
- */
-void prompt_multi()
+void
+prompt_multi()
 {
 	if(interactive)
 		printf("...   ");
 }
 
-int yywrap()
+int
+yywrap()
 {
 	return 1;
 }
@@ -39,7 +34,8 @@ int yywrap()
  * alloc new sexp object.
  * return sexp object if success, NULL otherwise.
  */
-struct s_exp *sexp_alloc()
+struct s_exp *
+sexp_alloc()
 {
 	struct s_exp *rc =  (struct s_exp*)malloc(sizeof(struct s_exp));
 	if(!rc)
@@ -51,11 +47,11 @@ struct s_exp *sexp_alloc()
 /*
  * copy sexp object.
  */
-struct s_exp *sexp_copy(struct s_exp *e)
+struct s_exp *
+sexp_copy(struct s_exp *e)
 {
-	if(e == nil) 		return nil;
-	else if(e == sexp_t)	return sexp_t;
-	else if(e == sexp_f)	return sexp_f;
+	if(is_singleton(e))
+		return e;
 
 	struct s_exp *p = sexp_alloc();
 	int len;
@@ -102,7 +98,8 @@ struct s_exp *sexp_copy(struct s_exp *e)
  * ref new sexp object.
  * return sexp object if success, NULL otherwise.
  */
-struct s_exp *sexp_ref(struct s_exp *e)
+struct s_exp *
+sexp_ref(struct s_exp *e)
 {
 	if(e != nil && e!= sexp_t && e!= sexp_f)
 		e->ref++;
@@ -112,7 +109,8 @@ struct s_exp *sexp_ref(struct s_exp *e)
 /*
  * free sexp object if reference count is 0.
  */
-void sexp_free(struct s_exp *e)
+void
+sexp_free(struct s_exp *e)
 {
 	if( --(e->ref) < 1)
 		free(e);
@@ -121,7 +119,8 @@ void sexp_free(struct s_exp *e)
 /*
  * create s_exp from integer
  */
-struct s_exp *integer2sexp(int i)
+struct s_exp *
+integer2sexp(int i)
 {
 	struct s_exp *e = sexp_alloc();
 	e->type = S_EXP_INTEGER;
@@ -132,7 +131,8 @@ struct s_exp *integer2sexp(int i)
 /*
  * create s_exp from character
  */
-struct s_exp *character2sexp(char c)
+struct s_exp *
+character2sexp(char c)
 {
 	struct s_exp *e =  sexp_alloc();
 	e->type = S_EXP_CHARACTER;
@@ -143,7 +143,8 @@ struct s_exp *character2sexp(char c)
 /*
  * create s_exp from symbol
  */
-struct s_exp *symbol2sexp(char *s)
+struct s_exp *
+symbol2sexp(char *s)
 {
 	struct s_exp *e =  sexp_alloc();
 	e->type = S_EXP_SYMBOL;
@@ -154,7 +155,8 @@ struct s_exp *symbol2sexp(char *s)
 /*
  * create s_exp from string
  */
-struct s_exp *string2sexp(char *s)
+struct s_exp *
+string2sexp(char *s)
 {
 	struct s_exp *e =  sexp_alloc();
 	e->type = S_EXP_STRING;
@@ -165,7 +167,8 @@ struct s_exp *string2sexp(char *s)
 /*
  * create s_exp from builtin
  */
-struct s_exp *builtin2sexp(char *s)
+struct s_exp *
+builtin2sexp(char *s)
 {
 	struct s_exp *e =  sexp_alloc();
 	e->type = S_EXP_BUILTIN;
@@ -176,7 +179,8 @@ struct s_exp *builtin2sexp(char *s)
 /*
  * create s_exp from special
  */
-struct s_exp *special2sexp(char *s)
+struct s_exp *
+special2sexp(char *s)
 {
 	struct s_exp *e =  sexp_alloc();
 	e->type = S_EXP_SPECIAL;
@@ -187,7 +191,8 @@ struct s_exp *special2sexp(char *s)
 /*
  * create s_exp from clojure
  */
-struct s_exp *clojure2sexp(struct s_exp *p)
+struct s_exp *
+clojure2sexp(struct s_exp *p)
 {
 	struct s_exp *e =  sexp_alloc();
 	e->type = S_EXP_CLOJURE;
@@ -199,7 +204,8 @@ struct s_exp *clojure2sexp(struct s_exp *p)
 /*
  * create s_exp from dotted pair
  */
-struct s_exp *cons(struct s_exp *car, struct s_exp *cdr)
+struct s_exp *
+cons(struct s_exp *car, struct s_exp *cdr)
 {
 	struct s_exp *e =  sexp_alloc();
 	e->type = S_EXP_PAIR;
@@ -211,7 +217,8 @@ struct s_exp *cons(struct s_exp *car, struct s_exp *cdr)
 /*
  * append two s_exp object
  */
-struct s_exp *append(struct s_exp *exp1, struct s_exp *exp2)
+struct s_exp *
+append(struct s_exp *exp1, struct s_exp *exp2)
 {
 	struct s_exp *rc, *e;
 
@@ -230,7 +237,8 @@ struct s_exp *append(struct s_exp *exp1, struct s_exp *exp2)
  * begin
  * return sexp_undef
  */
-struct s_exp *begin(struct s_exp *args)
+struct s_exp *
+begin(struct s_exp *args)
 {
 	struct s_exp *rc=sexp_undef;
 	struct s_exp *e = args;
@@ -245,7 +253,8 @@ struct s_exp *begin(struct s_exp *args)
 /*
  * return true if the type is pair and the cdr is nil end.
  */
-static int is_list(struct s_exp *e)
+static int
+is_list(struct s_exp *e)
 {
 	if(e == nil)
 		return 1;
@@ -255,7 +264,8 @@ static int is_list(struct s_exp *e)
 		return is_list(e->u.pair.cdr);
 }
 
-static void _write_type(struct s_exp *e)
+static void
+_write_type(struct s_exp *e)
 {
 	printf(" : ");
 	if(e == nil)
@@ -291,7 +301,8 @@ static void _write_sexp(struct s_exp *e, int d);
  * d = 0 if highest position
  *     1 otherwise
  */
-static void _write_list(struct s_exp *e, int d)
+static void
+_write_list(struct s_exp *e, int d)
 {
 	if(!d)
 		printf("(");
@@ -310,7 +321,8 @@ static void _write_list(struct s_exp *e, int d)
  * d = 0 if write type
  *     1 otherwise
  */
-static void _write_sexp(struct s_exp *e, int d)
+static void
+_write_sexp(struct s_exp *e, int d)
 {
 
 	if(e == nil)
@@ -349,20 +361,19 @@ static void _write_sexp(struct s_exp *e, int d)
 		_write_type(e);
 }
 
-void write_sexp(struct s_exp *e)
+void
+write_sexp(struct s_exp *e)
 {
 	_write_sexp(e,0);
 }
 
-/*
- * display s expression
- */
-struct s_exp *display(struct s_exp *args)
+struct s_exp *
+display(struct s_exp *args)
 {
 	struct s_exp *p = args;
 
 	while(p != nil){
-		_write_sexp(eval(p->u.pair.car),1);
+		_write_sexp(p->u.pair.car,1);
 		p = p->u.pair.cdr;
 	}
 
@@ -371,125 +382,107 @@ struct s_exp *display(struct s_exp *args)
 	return sexp_undef;
 }
 
-/*
- * add function
- */
-static struct s_exp *add(struct s_exp *args)
+static struct s_exp *
+add(struct s_exp *args)
 {
 	struct s_exp *p = args;
 	struct s_exp *q;
 	int s = 0;
 
 	while(p != nil){
-		s += eval(p->u.pair.car)->u.integer;
+		s += p->u.pair.car->u.integer;
 		p = p->u.pair.cdr;
 	}
 	return integer2sexp(s);
 }
 
-/*
- * minus function
- */
-static struct s_exp *minus(struct s_exp *args)
+static struct s_exp *
+minus(struct s_exp *args)
 {
 	struct s_exp *p = args->u.pair.cdr;
 	int s = eval(args->u.pair.car)->u.integer;
 
 	while(p != nil){
-		s -= eval(p->u.pair.car)->u.integer;
+		s -= p->u.pair.car->u.integer;
 		p = p->u.pair.cdr;
 	}
 	return integer2sexp(s);
 }
 
-/*
- * multi function
- */
-static struct s_exp *multi(struct s_exp *args)
+static struct s_exp *
+multi(struct s_exp *args)
 {
 	struct s_exp *p = args;
 	int s = 1;
 
 	while(p != nil){
-		s *= eval(p->u.pair.car)->u.integer;
+		s *= p->u.pair.car->u.integer;
 		p = p->u.pair.cdr;
 	}
 	return integer2sexp(s);
 }
 
-/*
- * divi function
- */
-static struct s_exp *divi(struct s_exp *args)
+static struct s_exp *
+divi(struct s_exp *args)
 {
 	struct s_exp *p = args->u.pair.cdr;
-	int s = eval(args->u.pair.car)->u.integer;
+	int s = args->u.pair.car->u.integer;
 
 	while(p != nil){
-		s /= eval(p->u.pair.car)->u.integer;
+		s /= p->u.pair.car->u.integer;
 		p = p->u.pair.cdr;
 	}
 	return integer2sexp(s);
 }
 
-/*
- * modulo function
- */
-static struct s_exp *modulo(struct s_exp *args)
+static struct s_exp *
+modulo(struct s_exp *args)
 {
-	int x = eval(args->u.pair.car)->u.integer;
-	int y = eval(args->u.pair.cdr->u.pair.car)->u.integer;
+	int x = args->u.pair.car->u.integer;
+	int y = args->u.pair.cdr->u.pair.car->u.integer;
 
 	return integer2sexp(x % y);
 }
 
-/*
- * or function
- */
-static struct s_exp *or(struct s_exp *args)
+static struct s_exp *
+or(struct s_exp *args)
 {
 	struct s_exp *p, *q;
 
 	if(args == nil)
 		return sexp_f;
 
-	p = eval(args->u.pair.car);
+	p = args->u.pair.car;
 	q = args->u.pair.cdr;
 
 	return (p != sexp_f) ? sexp_t : or(q);
 }
 
-/*
- * and function
- */
-static struct s_exp *and(struct s_exp *args)
+static struct s_exp *
+and(struct s_exp *args)
 {
 	struct s_exp *p, *q;
 
 	if(args == nil)
 		return sexp_t;
 
-	p = eval(args->u.pair.car);
+	p = args->u.pair.car;
 	q = args->u.pair.cdr;
 
 	return (p == sexp_f) ? sexp_f : and(q);
 }
 
-/*
- * list function
- */
-static struct s_exp *list(struct s_exp *args)
+static struct s_exp *
+list(struct s_exp *args)
 {
 	if(args == nil)
 		return nil;
 
-	return cons(eval(args->u.pair.car),list(args->u.pair.cdr));
+	return cons(args->u.pair.car,list(args->u.pair.cdr));
 }
 
-/*
- * if special operation
- */
-static struct s_exp *_if(struct s_exp *args)
+static struct s_exp *
+_if(struct s_exp *args)
 {
 	struct s_exp *p, *q, *r;
 	p = args->u.pair.car;
@@ -617,6 +610,12 @@ apply_builtin(struct s_exp *func, struct s_exp *args)
 	while(p != nil){
 		p->u.pair.car = eval(p->u.pair.car);
 		p = p->u.pair.cdr;
+	}
+
+	if(args){
+		p = args->u.pair.car;
+		if(args->u.pair.cdr)
+			q = args->u.pair.cdr->u.pair.car;
 	}
 
 	if(!strcmp(f_name,"+"))			rc = add(args);

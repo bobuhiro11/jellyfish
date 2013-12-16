@@ -28,6 +28,9 @@
 #define S_EXP_SPECIAL	7
 #define S_EXP_CLOJURE	8
 
+#define is_singleton(e)	\
+	( e==nil || e==sexp_t || e==sexp_f || e==sexp_undef)
+
 /***************************************************
  * structure definition
  ***************************************************/
