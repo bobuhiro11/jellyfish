@@ -1,6 +1,7 @@
 #include "common.h"
 
-struct symbol_table *st_create()
+struct symbol_table *
+st_create()
 {
 	struct symbol_table *rc = malloc(sizeof(struct symbol_table));
 	if(!rc)
@@ -10,13 +11,15 @@ struct symbol_table *st_create()
 	return rc;
 }
 
-struct symbol_table *st_destory(struct symbol_table *stable)
+struct symbol_table *
+st_destory(struct symbol_table *stable)
 {
 	ht_destory(stable->table);
 	free(stable);
 }
 
-static void _st_dump(const struct symbol_table *stable, int depth)
+static void
+_st_dump(const struct symbol_table *stable, int depth)
 {
 	if(!stable)
 		return;
@@ -26,13 +29,15 @@ static void _st_dump(const struct symbol_table *stable, int depth)
 	_st_dump(stable->next, depth+1);
 }
 
-struct s_exp *st_dump(const struct symbol_table *stable)
+struct s_exp *
+st_dump(const struct symbol_table *stable)
 {
 	_st_dump(stable,0);
 	return sexp_undef;
 }
 
-struct s_exp *st_insert(struct symbol_table *stable, const char *key, struct s_exp *data)
+struct s_exp *
+st_insert(struct symbol_table *stable, const char *key, struct s_exp *data)
 {
 	return ht_insert(stable->table, key, data);
 }
@@ -41,7 +46,8 @@ struct s_exp *st_insert(struct symbol_table *stable, const char *key, struct s_e
  * find data from symbol table.
  * return data if success, sexp_undef otherwise.
  */
-struct s_exp *st_find(const struct symbol_table *stable, const char *key)
+struct s_exp *
+st_find(const struct symbol_table *stable, const char *key)
 {
 	struct s_exp *e;
 
@@ -55,7 +61,8 @@ struct s_exp *st_find(const struct symbol_table *stable, const char *key)
 		return e;
 }
 
-void st_init(struct symbol_table *stable)
+void
+st_init(struct symbol_table *stable)
 {
 	st_insert(stable, "quote", special2sexp("quote"));
 	st_insert(stable, "if", special2sexp("if"));

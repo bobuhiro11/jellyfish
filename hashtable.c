@@ -4,7 +4,8 @@
  * Murmurhash2 By Austin Appleby
  * https://sites.google.com/site/murmurhash/
  */
-static uint32_t MurmurHash2(const void * key, int len, uint32_t seed)
+static uint32_t
+MurmurHash2(const void * key, int len, uint32_t seed)
 {
 
 	uint32_t m = 0x5bd1e995;
@@ -45,7 +46,8 @@ static uint32_t MurmurHash2(const void * key, int len, uint32_t seed)
  * insert data to hash table.
  * return data if success, NULL otherwise.
  */
-struct s_exp *ht_insert(struct hashtable *table, const char *key, struct s_exp *data)
+struct s_exp *
+ht_insert(struct hashtable *table, const char *key, struct s_exp *data)
 {
 	int len = strlen(key);
 	uint32_t h = MurmurHash2( (void*)key, len+1, (uint32_t)table);
@@ -69,7 +71,8 @@ struct s_exp *ht_insert(struct hashtable *table, const char *key, struct s_exp *
  * find data from hash table.
  * return data if success, sexp_undef otherwise.
  */
-struct s_exp *ht_find(const struct hashtable *table, const char *key)
+struct s_exp *ht_find
+(const struct hashtable *table, const char *key)
 {
 	int len = strlen(key);
 	uint32_t h = MurmurHash2( (void*)key, len+1, (uint32_t)table);
@@ -88,7 +91,8 @@ struct s_exp *ht_find(const struct hashtable *table, const char *key)
 /*
  * dump hash table.
  */
-void ht_dump(const struct hashtable *table)
+void
+ht_dump(const struct hashtable *table)
 {
 	int i;
 	for(i=0;i<HASHTABLE_SIZE;i++)
@@ -103,7 +107,8 @@ void ht_dump(const struct hashtable *table)
  * create hash table.
  * return table if success, NULL otherwise.
  */
-struct hashtable* ht_create()
+struct hashtable*
+ht_create()
 {
 	struct hashtable *table;
 	int i;
@@ -121,7 +126,8 @@ struct hashtable* ht_create()
 /*
  * destory hash table.
  */
-void ht_destory(struct hashtable *table)
+void
+ht_destory(struct hashtable *table)
 {
 	free(table);
 }

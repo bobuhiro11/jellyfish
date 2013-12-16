@@ -101,7 +101,7 @@ sexp_copy(struct s_exp *e)
 struct s_exp *
 sexp_ref(struct s_exp *e)
 {
-	if(e != nil && e!= sexp_t && e!= sexp_f)
+	if(!is_singleton(e))
 		e->ref++;
 	return e;
 }
@@ -383,6 +383,23 @@ display(struct s_exp *args)
 }
 
 static struct s_exp *
+newline(){
+	printf("\n");
+	return sexp_undef;
+}
+
+static struct s_exp *
+atom(struct s_exp *p){
+	if(is_singleton(p) 
+		|| p->type == S_EXP_INTEGER
+		|| p->type == S_EXP_CHARACTER
+		|| p->type == S_EXP_SYMBOL)
+		return sexp_t;
+	else
+		return sexp_f;
+}
+
+static struct s_exp *
 add(struct s_exp *args)
 {
 	struct s_exp *p = args;
@@ -498,7 +515,8 @@ _if(struct s_exp *args)
 /*
  * define special operation
  */
-static struct s_exp *define(struct s_exp *args)
+static struct s_exp *
+define(struct s_exp *args)
 {
 	struct s_exp *s = args->u.pair.car;
 	struct s_exp *p = sexp_ref(args->u.pair.cdr->u.pair.car);
@@ -517,7 +535,8 @@ static struct s_exp *define(struct s_exp *args)
 	return sexp_undef;
 }
 
-struct s_exp *eval(struct s_exp *e)
+struct s_exp *
+eval(struct s_exp *e)
 {
 	struct s_exp *car, *cdr;
 
@@ -630,19 +649,10 @@ apply_builtin(struct s_exp *func, struct s_exp *args)
 	else if(!strcmp(f_name,"list"))		rc = list(args);
 	else if(!strcmp(f_name,"eval"))		rc = eval(p);
 	else if(!strcmp(f_name,"display"))	rc = display(args);
-	else if(!strcmp(f_name,"newline")){
-		putc('\n', stdout);
-		return sexp_undef;
-	}else if(!strcmp(f_name,"eq?"))		rc = p==q ? sexp_t : sexp_f;
-	else if(!strcmp(f_name,"atom?")){
-		if(p==nil || p==sexp_t || p==sexp_f
-			|| p->type == S_EXP_INTEGER
-			|| p->type == S_EXP_CHARACTER
-			|| p->type == S_EXP_SYMBOL)
-			return sexp_t;
-		else
-			return sexp_f;
-	}else if(!strcmp(f_name,"nil?"))	rc = p==nil ? sexp_t : sexp_f;
+	else if(!strcmp(f_name,"newline"))	rc = newline();
+	else if(!strcmp(f_name,"eq?"))		rc = p==q ? sexp_t : sexp_f;
+	else if(!strcmp(f_name,"atom?"))	rc = atom(p);
+	else if(!strcmp(f_name,"nil?"))		rc = p==nil ? sexp_t : sexp_f;
 	else if(!strcmp(f_name,"null?"))	rc = p==nil ? sexp_t : sexp_f;
 	else if(!strcmp(f_name,"or"))		rc = or(args);
 	else if(!strcmp(f_name,"and"))		rc = and(args);
@@ -659,7 +669,8 @@ apply_builtin(struct s_exp *func, struct s_exp *args)
 
 
 
-int main(int argc, char **argv)
+int
+main(int argc, char **argv)
 {
 	global_table = st_create();
 	st_init(global_table);
