@@ -33,25 +33,26 @@
 input   :
         | input exp_noeval    
           {
-            struct s_exp *e = eval($2); 
+            struct s_exp *e = jf_eval($2); 
             if(interactive){
               write_sexp(e); 
               putc('\n',stdout); 
               prompt(); 
             }
+            sexp_free(e,1);
           }
 exp_noeval : INTEGER    { $$ = integer2sexp($1);}     /* no evalute s-expression for special operator */
         | CHARACTER     { $$ = character2sexp($1);}
         | SYMBOL        { $$ = symbol2sexp($1);}
         | STRING        { $$ = string2sexp($1);}
         | NIL           { $$ = nil;}
-	      | TRUE		      { $$ = sexp_t;}
+	| TRUE		      { $$ = sexp_t;}
         | FALSE		      { $$ = sexp_f;}
         | QUOTE exp_noeval
           {
                struct s_exp *car = symbol2sexp("quote");
-               struct s_exp *cdr = cons($2, nil);
-               $$ = cons(car,cdr);
+               struct s_exp *cdr = jf_cons($2, nil);
+               $$ = jf_cons(car,cdr);
           }
         | LEFT_PAREN members_noeval
           { 
@@ -61,7 +62,7 @@ exp_noeval : INTEGER    { $$ = integer2sexp($1);}     /* no evalute s-expression
 members_noeval : RIGHT_PAREN  { $$ = nil; }
         | exp_noeval members_noeval
           {
-            $$ = cons($1,$2);
+            $$ = jf_cons($1,$2);
           }
         ;
 %%

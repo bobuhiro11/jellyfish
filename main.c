@@ -107,13 +107,39 @@ sexp_ref(struct s_exp *e)
 }
 
 /*
- * free sexp object if reference count is 0.
+ * free sexp recursive object if reference count is 0.
+ *
+ * @rec 1 if recursive, 0 otherwise
  */
 void
-sexp_free(struct s_exp *e)
+sexp_free(struct s_exp *e, int rec)
 {
-	if( --(e->ref) < 1)
+	if(is_singleton(e))
+		return;
+	else if(--e->ref >= 1)
+		return;
+
+	if(e->type == S_EXP_PAIR){
+		if(rec){
+			sexp_free(e->u.pair.car,1);
+			sexp_free(e->u.pair.cdr,1);
+		}
 		free(e);
+	}else if(e->type == S_EXP_INTEGER){
+		free(e);
+	}else if(e->type == S_EXP_CHARACTER){
+		free(e);
+	}else if(e->type == S_EXP_STRING){
+		free(e->u.string);
+		free(e);
+	}else if(e->type == S_EXP_SYMBOL){
+		free(e->u.symbol);
+		free(e);
+	}else if(e->type == S_EXP_BUILTIN){
+		free(e);
+	}else if(e->type == S_EXP_SPECIAL){
+		free(e);
+	}
 }
 
 /*
@@ -205,7 +231,7 @@ clojure2sexp(struct s_exp *p)
  * create s_exp from dotted pair
  */
 struct s_exp *
-cons(struct s_exp *car, struct s_exp *cdr)
+jf_cons(struct s_exp *car, struct s_exp *cdr)
 {
 	struct s_exp *e =  sexp_alloc();
 	e->type = S_EXP_PAIR;
@@ -218,17 +244,18 @@ cons(struct s_exp *car, struct s_exp *cdr)
  * append two s_exp object
  */
 struct s_exp *
-append(struct s_exp *exp1, struct s_exp *exp2)
+jf_append(struct s_exp *exp1, struct s_exp *exp2)
 {
 	struct s_exp *rc, *e;
 
-	if(exp1 == nil)
-		return sexp_copy(exp2);
+	if(exp1 == nil){
+		return exp2;
+	}
 
-	rc = e = sexp_copy(exp1);
+	rc = e = exp1;
 	while(e->u.pair.cdr != nil)
 		e = e->u.pair.cdr;
-	e->u.pair.cdr = sexp_copy(exp2);
+	e->u.pair.cdr = exp2;
 
 	return rc;
 }
@@ -238,14 +265,15 @@ append(struct s_exp *exp1, struct s_exp *exp2)
  * return sexp_undef
  */
 struct s_exp *
-begin(struct s_exp *args)
+jf_begin(struct s_exp *args)
 {
 	struct s_exp *rc=sexp_undef;
-	struct s_exp *e = args;
+	struct s_exp *e = args, *q;
 
 	while(e != nil){
-		rc = eval(e->u.pair.car);
-		e = e->u.pair.cdr;
+		rc = jf_eval(e->u.pair.car);
+		q = e->u.pair.cdr;
+		e = q;
 	}
 	return rc;
 }
@@ -341,14 +369,17 @@ write_sexp(struct s_exp *e)
 	_write_sexp(e,0);
 }
 
-struct s_exp *
-display(struct s_exp *args)
+static struct s_exp *
+jf_display(struct s_exp *args)
 {
-	struct s_exp *p = args;
+	struct s_exp *p = args, *q;
 
 	while(p != nil){
 		_write_sexp(p->u.pair.car,1);
-		p = p->u.pair.cdr;
+		//sexp_free(p->u.pair.car,1);
+		q = p->u.pair.cdr;
+		//sexp_free(p,0);
+		p = q;
 	}
 
 	if(interactive)
@@ -357,24 +388,27 @@ display(struct s_exp *args)
 }
 
 static struct s_exp *
-newline(){
+jf_newline(){
 	printf("\n");
 	return sexp_undef;
 }
 
 static struct s_exp *
-atom(struct s_exp *p){
+jf_atom(struct s_exp *p){
 	if(is_singleton(p)
 		|| p->type == S_EXP_INTEGER
 		|| p->type == S_EXP_CHARACTER
-		|| p->type == S_EXP_SYMBOL)
+		|| p->type == S_EXP_SYMBOL){
+		//sexp_free(p,1);
 		return sexp_t;
-	else
+	}else{
+		//sexp_free(p,1);
 		return sexp_f;
+	}
 }
 
 static struct s_exp *
-add(struct s_exp *args)
+jf_add(struct s_exp *args)
 {
 	struct s_exp *p = args;
 	struct s_exp *q;
@@ -382,16 +416,19 @@ add(struct s_exp *args)
 
 	while(p != nil){
 		s += p->u.pair.car->u.integer;
-		p = p->u.pair.cdr;
+		//sexp_free(p->u.pair.car,1);
+		q = p->u.pair.cdr;
+		//sexp_free(p,0);
+		p = q;
 	}
 	return integer2sexp(s);
 }
 
 static struct s_exp *
-minus(struct s_exp *args)
+jf_minus(struct s_exp *args)
 {
 	struct s_exp *p = args->u.pair.cdr;
-	int s = eval(args->u.pair.car)->u.integer;
+	int s = args->u.pair.car->u.integer;
 
 	while(p != nil){
 		s -= p->u.pair.car->u.integer;
@@ -401,7 +438,7 @@ minus(struct s_exp *args)
 }
 
 static struct s_exp *
-multi(struct s_exp *args)
+jf_multi(struct s_exp *args)
 {
 	struct s_exp *p = args;
 	int s = 1;
@@ -414,7 +451,7 @@ multi(struct s_exp *args)
 }
 
 static struct s_exp *
-divi(struct s_exp *args)
+jf_divi(struct s_exp *args)
 {
 	struct s_exp *p = args->u.pair.cdr;
 	int s = args->u.pair.car->u.integer;
@@ -427,7 +464,7 @@ divi(struct s_exp *args)
 }
 
 static struct s_exp *
-modulo(struct s_exp *args)
+jf_modulo(struct s_exp *args)
 {
 	int x = args->u.pair.car->u.integer;
 	int y = args->u.pair.cdr->u.pair.car->u.integer;
@@ -436,7 +473,7 @@ modulo(struct s_exp *args)
 }
 
 static struct s_exp *
-or(struct s_exp *args)
+jf_or(struct s_exp *args)
 {
 	struct s_exp *p, *q;
 
@@ -446,11 +483,11 @@ or(struct s_exp *args)
 	p = args->u.pair.car;
 	q = args->u.pair.cdr;
 
-	return (p != sexp_f) ? sexp_t : or(q);
+	return (p != sexp_f) ? sexp_t : jf_or(q);
 }
 
 static struct s_exp *
-and(struct s_exp *args)
+jf_and(struct s_exp *args)
 {
 	struct s_exp *p, *q;
 
@@ -460,37 +497,37 @@ and(struct s_exp *args)
 	p = args->u.pair.car;
 	q = args->u.pair.cdr;
 
-	return (p == sexp_f) ? sexp_f : and(q);
+	return (p == sexp_f) ? sexp_f : jf_and(q);
 }
 
 static struct s_exp *
-list(struct s_exp *args)
+jf_list(struct s_exp *args)
 {
 	if(args == nil)
 		return nil;
 
-	return cons(args->u.pair.car,list(args->u.pair.cdr));
+	return jf_cons(args->u.pair.car,jf_list(args->u.pair.cdr));
 }
 
 static struct s_exp *
-_if(struct s_exp *args)
+jf_if(struct s_exp *args)
 {
 	struct s_exp *p, *q, *r;
 	p = args->u.pair.car;
 	q = args->u.pair.cdr->u.pair.car;
 	r = args->u.pair.cdr->u.pair.cdr->u.pair.car;
 
-	if(eval(p) == sexp_f)
-		return eval(r);
+	if(jf_eval(p) == sexp_f)
+		return jf_eval(r);
 	else
-		return eval(q);
+		return jf_eval(q);
 }
 
 /*
  * define special operation
  */
 static struct s_exp *
-define(struct s_exp *args)
+jf_define(struct s_exp *args)
 {
 	struct s_exp *s = args->u.pair.car;
 	struct s_exp *p = sexp_ref(args->u.pair.cdr->u.pair.car);
@@ -498,26 +535,26 @@ define(struct s_exp *args)
 
 	if(s->type == S_EXP_PAIR){	/* syntax sugar */
 		q = s->u.pair.cdr;
-		p = cons(q, cons(p,nil));
+		p = jf_cons(q, jf_cons(p,nil));
 		p = clojure2sexp(p);
 		s = s->u.pair.car;
 	}
 
-	p = eval(p);
+	p = jf_eval(p);
 	st_insert(global_table, s->u.symbol, p);
 
 	return sexp_undef;
 }
 
 struct s_exp *
-eval(struct s_exp *e)
+jf_eval(struct s_exp *e)
 {
-	struct s_exp *car, *cdr;
+	struct s_exp *car, *cdr, *q;
 
 	//printf("eval > ");write_sexp(e);printf("\n");
 	//st_dump(global_table);printf("\n\n");
 
-	if(e == nil || e == sexp_t || e == sexp_f || e == sexp_undef)
+	if(is_singleton(e))
 		return e;
 
 	switch(e->type){
@@ -529,17 +566,23 @@ eval(struct s_exp *e)
 		case S_EXP_CLOJURE:
 			return e;
 		case S_EXP_SYMBOL:
-			return st_find(global_table, e->u.symbol);
+			q = st_find(global_table, e->u.symbol);
+			sexp_free(e,1);
+			return q;
 	}
 
 	car = e->u.pair.car;
 	cdr = e->u.pair.cdr;
+	sexp_free(e,0);
 
-	car = eval(car);
+	q = jf_eval(car);
+	//sexp_free(car,1);
+	car = q;
+
 	switch(car->type){
-		case S_EXP_SPECIAL:	return apply_special(car,cdr);
-		case S_EXP_CLOJURE:	return apply_clojure(car,cdr);
-		case S_EXP_BUILTIN:	return apply_builtin(car,cdr);
+		case S_EXP_SPECIAL:	return jf_apply_special(car,cdr);
+		case S_EXP_CLOJURE:	return jf_apply_clojure(car,cdr);
+		case S_EXP_BUILTIN:	return jf_apply_builtin(car,cdr);
 	}
 
 	return nil;
@@ -547,22 +590,22 @@ eval(struct s_exp *e)
 }
 
 struct s_exp *
-apply_special(struct s_exp *car, struct s_exp *cdr)
+jf_apply_special(struct s_exp *car, struct s_exp *cdr)
 {
 	struct s_exp *rc = nil;
 
 	if(!strcmp(car->u.symbol, "quote"))		rc = cdr->u.pair.car;
-	else if(!strcmp(car->u.symbol,"if"))		rc = _if(cdr);
-	else if(!strcmp(car->u.symbol,"define"))	rc = define(cdr);
+	else if(!strcmp(car->u.symbol,"if"))		rc = jf_if(cdr);
+	else if(!strcmp(car->u.symbol,"define"))	rc = jf_define(cdr);
 	else if(!strcmp(car->u.symbol,"symbols"))	rc = st_dump(global_table);
 	else if(!strcmp(car->u.symbol,"lambda"))	rc = clojure2sexp(cdr);
-	else if(!strcmp(car->u.symbol,"begin"))		rc = begin(cdr);
+	else if(!strcmp(car->u.symbol,"begin"))		rc = jf_begin(cdr);
 
 	return rc;
 }
 
 struct s_exp *
-apply_clojure(struct s_exp *clojure, struct s_exp *args)
+jf_apply_clojure(struct s_exp *clojure, struct s_exp *args)
 {
 	struct symbol_table *p;
 	struct s_exp *e1, *e2, *rc;
@@ -573,7 +616,7 @@ apply_clojure(struct s_exp *clojure, struct s_exp *args)
 	e2 = args;
 
 	while(e1 && e2){
-		st_insert(p, e1->u.pair.car->u.symbol,eval(e2->u.pair.car));
+		st_insert(p, e1->u.pair.car->u.symbol,jf_eval(e2->u.pair.car));
 
 		e1 = e1->u.pair.cdr;
 		e2 = e2->u.pair.cdr;
@@ -583,7 +626,7 @@ apply_clojure(struct s_exp *clojure, struct s_exp *args)
 	global_table = p;
 
 	rc = sexp_copy(clojure->u.pair.cdr->u.pair.car);/* copy clojure expression and eval */
-	rc = eval(rc);
+	rc = jf_eval(rc);
 
 	p = global_table;				/* remove new scope */
 	global_table = global_table->next;
@@ -593,15 +636,18 @@ apply_clojure(struct s_exp *clojure, struct s_exp *args)
 }
 
 struct s_exp *
-apply_builtin(struct s_exp *func, struct s_exp *args)
+jf_apply_builtin(struct s_exp *func, struct s_exp *args)
 {
-	char *f_name = func->u.symbol;
+	char *f_name = func->u.builtin;
 	struct s_exp *p, *q, *rc=nil;
+
+
+	printf("args=");write_sexp(args);printf("\n");
 
 	/* eval args */
 	p = args;
 	while(p != nil){
-		p->u.pair.car = eval(p->u.pair.car);
+		p->u.pair.car = jf_eval(p->u.pair.car);
 		p = p->u.pair.cdr;
 	}
 
@@ -611,31 +657,37 @@ apply_builtin(struct s_exp *func, struct s_exp *args)
 			q = args->u.pair.cdr->u.pair.car;
 	}
 
-	if(!strcmp(f_name,"+"))			rc = add(args);
-	else if(!strcmp(f_name,"-"))		rc = minus(args);
-	else if(!strcmp(f_name,"*"))		rc = multi(args);
-	else if(!strcmp(f_name,"/"))		rc = divi(args);
-	else if(!strcmp(f_name,"modulo"))	rc = modulo(args);
-	else if(!strcmp(f_name,"cons"))		rc = cons(p,q);
-	else if(!strcmp(f_name,"append"))	rc = append(p,q);
+	if(!strcmp(f_name,"+"))			rc = jf_add(args);
+	else if(!strcmp(f_name,"-"))		rc = jf_minus(args);
+	else if(!strcmp(f_name,"*"))		rc = jf_multi(args);
+	else if(!strcmp(f_name,"/"))		rc = jf_divi(args);
+	else if(!strcmp(f_name,"modulo"))	rc = jf_modulo(args);
+	else if(!strcmp(f_name,"cons"))		rc = jf_cons(p,q);
+	else if(!strcmp(f_name,"append"))	rc = jf_append(p,q);
 	else if(!strcmp(f_name,"car"))		rc = p->u.pair.car;
 	else if(!strcmp(f_name,"cdr"))		rc = p->u.pair.cdr;
-	else if(!strcmp(f_name,"list"))		rc = list(args);
-	else if(!strcmp(f_name,"eval"))		rc = eval(p);
-	else if(!strcmp(f_name,"display"))	rc = display(args);
-	else if(!strcmp(f_name,"newline"))	rc = newline();
+	else if(!strcmp(f_name,"list"))		rc = jf_list(args);
+	else if(!strcmp(f_name,"eval"))		rc = jf_eval(p);
+	else if(!strcmp(f_name,"display"))	rc = jf_display(args);
+	else if(!strcmp(f_name,"newline"))	rc = jf_newline();
 	else if(!strcmp(f_name,"eq?"))		rc = p==q ? sexp_t : sexp_f;
-	else if(!strcmp(f_name,"atom?"))	rc = atom(p);
+	else if(!strcmp(f_name,"atom?"))	rc = jf_atom(p);
 	else if(!strcmp(f_name,"nil?"))		rc = p==nil ? sexp_t : sexp_f;
 	else if(!strcmp(f_name,"null?"))	rc = p==nil ? sexp_t : sexp_f;
-	else if(!strcmp(f_name,"or"))		rc = or(args);
-	else if(!strcmp(f_name,"and"))		rc = and(args);
+	else if(!strcmp(f_name,"or"))		rc = jf_or(args);
+	else if(!strcmp(f_name,"and"))		rc = jf_and(args);
 	else if(!strcmp(f_name,"not"))		rc = p == sexp_f ? sexp_t : sexp_f;
 	else if(!strcmp(f_name,"="))		rc = p->u.integer == q->u.integer ? sexp_t : sexp_f;
 	else if(!strcmp(f_name,">"))		rc = p->u.integer > q->u.integer ? sexp_t : sexp_f;
 	else if(!strcmp(f_name,"<"))		rc = p->u.integer < q->u.integer ? sexp_t : sexp_f;
 	else if(!strcmp(f_name,"<="))		rc = p->u.integer <= q->u.integer ? sexp_t : sexp_f;
 	else if(!strcmp(f_name,">="))		rc = p->u.integer >= q->u.integer ? sexp_t : sexp_f;
+
+	sexp_free(args, 1);
+	/*
+	 * must release "func" because it is pointer of hashtable->data object which reference count is increased.
+	 */
+	sexp_free(func, 1);
 
 	return rc;
 }
@@ -664,5 +716,10 @@ main(int argc, char **argv)
 	}
 	yyparse();
 	st_destory(global_table);
+	printf("\n\n");
+	printf("**************\n");
+	printf("*  Good bye. *\n");
+	printf("**************\n");
+	fclose(yyin);
 	return 0;
 }

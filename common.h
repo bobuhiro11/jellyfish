@@ -19,17 +19,21 @@
 #define sexp_f		((struct s_exp*)0xFFFFFFFe)
 #define sexp_undef	((struct s_exp*)0xFFFFFFFd)
 
+/* 
+ * in fact builtin and special type is singleton.
+ * these object exist only in global table.
+ */
 #define S_EXP_PAIR 	1
 #define S_EXP_INTEGER	2
 #define S_EXP_CHARACTER	3
 #define S_EXP_STRING 	4
 #define S_EXP_SYMBOL	5
-#define S_EXP_BUILTIN	6
+#define S_EXP_BUILTIN	6 
 #define S_EXP_SPECIAL	7
 #define S_EXP_CLOJURE	8
 
 #define is_singleton(e)	\
-	( e==nil || e==sexp_t || e==sexp_f || e==sexp_undef)
+	( e==nil || e==sexp_t || e==sexp_f || e==sexp_undef )
 
 /***************************************************
  * structure definition
@@ -77,7 +81,7 @@ struct s_exp *display(struct s_exp *e);
 struct s_exp *sexp_alloc();
 struct s_exp *sexp_ref(struct s_exp *e);
 struct s_exp *sexp_copy(struct s_exp *e);
-void sexp_free(struct s_exp *e);
+void sexp_free(struct s_exp *e, int rec);
 
 struct s_exp *integer2sexp(int i);
 struct s_exp *character2sexp(char c);
@@ -86,12 +90,12 @@ struct s_exp *string2sexp(char *s);
 struct s_exp *builtin2sexp(char *s);
 struct s_exp *special2sexp(char *s);
 struct s_exp *clojure2sexp(struct s_exp *e);
-struct s_exp *cons(struct s_exp *car, struct s_exp *cdr);
-struct s_exp *append(struct s_exp *exp1, struct s_exp *exp2);
-struct s_exp *eval(struct s_exp *e);
-struct s_exp *apply_builtin(struct s_exp *func, struct s_exp *args);
-struct s_exp *apply_clojure(struct s_exp *clojure, struct s_exp *args);
-struct s_exp *apply_special(struct s_exp *car, struct s_exp *cdr);
+struct s_exp *jf_cons(struct s_exp *car, struct s_exp *cdr);
+struct s_exp *jf_append(struct s_exp *exp1, struct s_exp *exp2);
+struct s_exp *jf_eval(struct s_exp *e);
+struct s_exp *jf_apply_builtin(struct s_exp *func, struct s_exp *args);
+struct s_exp *jf_apply_clojure(struct s_exp *clojure, struct s_exp *args);
+struct s_exp *jf_apply_special(struct s_exp *car, struct s_exp *cdr);
 
 struct symbol_table *st_create();
 struct symbol_table *st_destory(struct symbol_table *stable);

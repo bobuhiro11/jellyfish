@@ -22,8 +22,7 @@ MurmurHash2(const void * key, int len, uint32_t seed)
 		k *= m;
 
 		h *= m;
-		h ^= k;
-
+		h ^= k; 
 		data += 4;
 		len -= 4;
 	}
@@ -83,7 +82,7 @@ struct s_exp *ht_find
 		if(table[i].key[0] == '\0')
 			return sexp_undef;
 		else if(strncmp(table[i].key, key, KEYWORD_BUFLEN)==0)
-			return table[i].data;
+			return sexp_ref(table[i].data);
 	}
 	return sexp_undef;
 }
@@ -129,5 +128,11 @@ ht_create()
 void
 ht_destory(struct hashtable *table)
 {
+	int i;
+	for(i=0;i<HASHTABLE_SIZE;i++){
+		if(table[i].key[0] != '\0'){
+			sexp_free(table[i].data,1);
+		}
+	}
 	free(table);
 }
