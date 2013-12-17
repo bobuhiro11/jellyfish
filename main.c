@@ -233,17 +233,35 @@ clojure2sexp(struct s_exp *p)
 	sexp_free(p,0);
 	return e;
 }
-
 /*
  * create s_exp from dotted pair
  */
 struct s_exp *
-jf_cons(struct s_exp *car, struct s_exp *cdr)
+cons(struct s_exp *car, struct s_exp *cdr)
 {
 	struct s_exp *e =  sexp_alloc();
 	e->type = S_EXP_PAIR;
 	(e->u).pair.car = car;
 	(e->u).pair.cdr = cdr;
+
+	printf("cons=");write_sexp(e);printf("\n");
+	return e;
+}
+
+/*
+ * create s_exp from dotted pair
+ */
+static struct s_exp *
+jf_cons(struct s_exp *args)
+{
+	struct s_exp *e =  sexp_alloc();
+	e->type = S_EXP_PAIR;
+	(e->u).pair.car = args->u.pair.car;
+	(e->u).pair.cdr = args->u.pair.cdr->u.pair.car;
+
+	sexp_free(args->u.pair.cdr->u.pair.cdr,1);
+	sexp_free(args->u.pair.cdr,0);
+	sexp_free(args,0);
 
 	printf("cons=");write_sexp(e);printf("\n");
 	return e;
@@ -515,7 +533,8 @@ jf_list(struct s_exp *args)
 	if(args == nil)
 		return nil;
 
-	return jf_cons(args->u.pair.car,jf_list(args->u.pair.cdr));
+	//return jf_cons(args->u.pair.car,jf_list(args->u.pair.cdr));
+	return nil;
 }
 
 static struct s_exp *
@@ -564,7 +583,8 @@ jf_define(struct s_exp *args)
 
 	if(s->type == S_EXP_PAIR){	/* syntax sugar */
 		q = s->u.pair.cdr;
-		p = jf_cons(q, jf_cons(p,nil));
+		/* have to fix */
+		//p = jf_cons(q, jf_cons(p,nil));
 		p = clojure2sexp(p);
 		s = s->u.pair.car;
 	}
@@ -697,7 +717,7 @@ jf_apply_builtin(struct s_exp *func, struct s_exp *args)
 	else if(!strcmp(f_name,"*"))		rc = jf_multi(args);
 	else if(!strcmp(f_name,"/"))		rc = jf_divi(args);
 	else if(!strcmp(f_name,"modulo"))	rc = jf_modulo(args);
-	else if(!strcmp(f_name,"cons"))		rc = jf_cons(p,q);
+	else if(!strcmp(f_name,"cons"))		rc = jf_cons(args);
 	else if(!strcmp(f_name,"append"))	rc = jf_append(p,q);
 	else if(!strcmp(f_name,"car"))		rc = p->u.pair.car;
 	else if(!strcmp(f_name,"cdr"))		rc = p->u.pair.cdr;
