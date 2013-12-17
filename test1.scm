@@ -4,7 +4,6 @@
 (display (if #t
            1
            2))
-(define f (lambda () 1))
 
 ((lambda (x) 1) 100)
 
@@ -25,3 +24,6 @@
 (atom? 1)
 (atom? (quote (2 3)))
 (+ 1 5)
+
+(define f (lambda (x) 1))
+(display (f 100))
