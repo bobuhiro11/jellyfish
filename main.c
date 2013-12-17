@@ -45,56 +45,6 @@ sexp_alloc()
 }
 
 /*
- * copy sexp object.
- */
-//struct s_exp *
-//sexp_copy(struct s_exp *e)
-//{
-//	if(is_singleton(e))
-//		return e;
-//
-//	struct s_exp *p = sexp_alloc();
-//	int len;
-//
-//	if(e->type == S_EXP_PAIR){
-//		p->type = S_EXP_PAIR;
-//		p->u.pair.car = sexp_copy(e->u.pair.car);
-//		p->u.pair.cdr = sexp_copy(e->u.pair.cdr);
-//	}else if(e->type == S_EXP_INTEGER){
-//		p->type = S_EXP_INTEGER;
-//		p->u.integer = e->u.integer;
-//	}else if(e->type == S_EXP_CHARACTER){
-//		p->type = S_EXP_CHARACTER;
-//		p->u.character = e->u.character;
-//	}else if(e->type == S_EXP_STRING){
-//		p->type = S_EXP_STRING;
-//		p->u.string = e->u.string;
-//		len = strlen( e->u.string );
-//		p->u.string = malloc(len+1);
-//		memset(p->u.string, 0, len+1);
-//		strncpy(p->u.string, e->u.string, len);
-//	}else if(e->type == S_EXP_SYMBOL){
-//		p->type = S_EXP_SYMBOL;
-//		len = strlen( e->u.symbol );
-//		p->u.symbol = malloc(len+1);
-//		memset(p->u.symbol, 0, len+1);
-//		strncpy(p->u.symbol, e->u.symbol, len);
-//	}else if(e->type == S_EXP_BUILTIN){
-//		p->type = S_EXP_SYMBOL;
-//		p->u.symbol = e->u.symbol;
-//	}else if(e->type == S_EXP_SPECIAL){
-//		p->type = S_EXP_SYMBOL;
-//		p->u.special = e->u.special;
-//	}else if(e->type == S_EXP_CLOJURE){
-//		p->type = S_EXP_CLOJURE;
-//		p->u.pair.car = sexp_copy(e->u.pair.car);
-//		p->u.pair.cdr = sexp_copy(e->u.pair.cdr);
-//	}
-//
-//	return p;
-//}
-
-/*
  * ref new sexp object.
  * return sexp object if success, NULL otherwise.
  */
@@ -109,6 +59,7 @@ sexp_ref(struct s_exp *e)
 		sexp_ref(e->u.pair.car);
 		sexp_ref(e->u.pair.cdr);
 	}
+
 	return e;
 }
 
@@ -120,38 +71,26 @@ sexp_ref(struct s_exp *e)
 void
 sexp_free(struct s_exp *e, int rec)
 {
-	if(is_singleton(e))
-		return;
-	else if(--e->ref >= 1)
+	if(is_singleton(e) || --e->ref >= 1)
 		return;
 
-	if(e->type == S_EXP_PAIR){
-		if(rec){
-			sexp_free(e->u.pair.car,1);
-			sexp_free(e->u.pair.cdr,1);
-		}
-		free(e);
-	}else if(e->type == S_EXP_CLOJURE){
-		if(rec){
-			sexp_free(e->u.pair.car,1);
-			sexp_free(e->u.pair.cdr,1);
-		}
-		free(e);
-	}else if(e->type == S_EXP_INTEGER){
-		free(e);
-	}else if(e->type == S_EXP_CHARACTER){
-		free(e);
-	}else if(e->type == S_EXP_STRING){
-		free(e->u.string);
-		free(e);
-	}else if(e->type == S_EXP_SYMBOL){
-		free(e->u.symbol);
-		free(e);
-	}else if(e->type == S_EXP_BUILTIN){
-		free(e);
-	}else if(e->type == S_EXP_SPECIAL){
-		free(e);
+	switch(e->type){
+		case S_EXP_PAIR:
+		case S_EXP_CLOJURE:
+			if(rec){
+				sexp_free(e->u.pair.car,1);
+				sexp_free(e->u.pair.cdr,1);
+			}
+			break;
+		case S_EXP_SYMBOL:
+			free(e->u.symbol);
+			break;
+		case S_EXP_STRING:
+			free(e->u.string);
+			break;
 	}
+
+	free(e);
 }
 
 /*
@@ -624,9 +563,6 @@ jf_eval(struct s_exp *e)
 {
 	struct s_exp *car, *cdr, *q;
 
-	//printf("eval > ");write_sexp(e);printf("\n");
-	//st_dump(global_table);printf("\n\n");
-
 	if(is_singleton(e))
 		return e;
 
@@ -640,7 +576,6 @@ jf_eval(struct s_exp *e)
 			return e;
 		case S_EXP_SYMBOL:
 			q = sexp_ref(st_find(global_table, e->u.symbol));
-			//q = st_find(global_table, e->u.symbol);
 			sexp_free(e,1);
 			return q;
 	}
