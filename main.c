@@ -736,11 +736,12 @@ main(int argc, char **argv)
 		prompt();
 	}
 	yyparse();
+	fclose(yyin);
+	yylex_destroy();
 	st_destory(global_table);
 	printf("\n\n");
 	printf("**************\n");
 	printf("*  Good bye. *\n");
 	printf("**************\n");
-	fclose(yyin);
 	return 0;
 }
