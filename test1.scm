@@ -19,3 +19,6 @@
 (list (+ 0 1) (+ 4 2) (+ 6 3))
 (quote (2 3))
 (append (quote (2 3)) (quote (4 5)))
+
+(atom? 1)
+(atom? (quote (2 3)))

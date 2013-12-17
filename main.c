@@ -421,21 +421,28 @@ jf_display(struct s_exp *args)
 }
 
 static struct s_exp *
-jf_newline(){
+jf_newline()
+{
 	printf("\n");
 	return sexp_undef;
 }
 
 static struct s_exp *
-jf_atom(struct s_exp *p){
+jf_atom(struct s_exp *args)
+{
+	struct s_exp *p = args->u.pair.car;
+
+	sexp_free(args->u.pair.cdr,1);
+	sexp_free(args,0);
+
 	if(is_singleton(p)
 		|| p->type == S_EXP_INTEGER
 		|| p->type == S_EXP_CHARACTER
 		|| p->type == S_EXP_SYMBOL){
-		//sexp_free(p,1);
+		sexp_free(p,1);
 		return sexp_t;
 	}else{
-		//sexp_free(p,1);
+		sexp_free(p,1);
 		return sexp_f;
 	}
 }
@@ -734,7 +741,7 @@ jf_apply_builtin(struct s_exp *func, struct s_exp *args)
 	else if(!strcmp(f_name,"display"))	rc = jf_display(args);
 	else if(!strcmp(f_name,"newline"))	rc = jf_newline();
 	else if(!strcmp(f_name,"eq?"))		rc = p==q ? sexp_t : sexp_f;
-	else if(!strcmp(f_name,"atom?"))	rc = jf_atom(p);
+	else if(!strcmp(f_name,"atom?"))	rc = jf_atom(args);
 	else if(!strcmp(f_name,"nil?"))		rc = p==nil ? sexp_t : sexp_f;
 	else if(!strcmp(f_name,"null?"))	rc = p==nil ? sexp_t : sexp_f;
 	else if(!strcmp(f_name,"or"))		rc = jf_or(args);
