@@ -517,10 +517,30 @@ jf_if(struct s_exp *args)
 	q = args->u.pair.cdr->u.pair.car;
 	r = args->u.pair.cdr->u.pair.cdr->u.pair.car;
 
-	if(jf_eval(p) == sexp_f)
+	sexp_free(args->u.pair.cdr->u.pair.cdr->u.pair.cdr,1);
+	sexp_free(args->u.pair.cdr->u.pair.cdr,0);
+	sexp_free(args->u.pair.cdr,0);
+	sexp_free(args,0);
+
+	if(jf_eval(p) == sexp_f){
+		sexp_free(q,1);
 		return jf_eval(r);
-	else
+	}else{
+		sexp_free(r,1);
 		return jf_eval(q);
+	}
+}
+
+static struct s_exp *
+jf_quote(struct s_exp *args)
+{
+	struct s_exp *rc;
+
+	rc = args->u.pair.car;
+	sexp_free(args->u.pair.cdr,1);
+	sexp_free(args,0);
+
+	return rc;
 }
 
 /*
@@ -576,7 +596,6 @@ jf_eval(struct s_exp *e)
 	sexp_free(e,0);
 
 	q = jf_eval(car);
-	//sexp_free(car,1);
 	car = q;
 
 	switch(car->type){
@@ -600,6 +619,8 @@ jf_apply_special(struct s_exp *car, struct s_exp *cdr)
 	else if(!strcmp(car->u.symbol,"symbols"))	rc = st_dump(global_table);
 	else if(!strcmp(car->u.symbol,"lambda"))	rc = clojure2sexp(cdr);
 	else if(!strcmp(car->u.symbol,"begin"))		rc = jf_begin(cdr);
+
+	sexp_free(car,1);
 
 	return rc;
 }
