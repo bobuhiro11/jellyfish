@@ -15,6 +15,7 @@
       1
       (* x (f (- x 1))))))
 
-(cons 1 2)
-;(list (+ 0 1) (/ 4 2) (- 6 3))
-;(append (quote ( 2 3)) (quote (4 5)))
+(display (cons 1 2))
+(list (+ 0 1) (+ 4 2) (+ 6 3))
+(quote (2 3))
+(append (quote (2 3)) (quote (4 5)))

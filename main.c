@@ -270,10 +270,12 @@ jf_cons(struct s_exp *args)
 /*
  * append two s_exp object
  */
-struct s_exp *
-jf_append(struct s_exp *exp1, struct s_exp *exp2)
+static struct s_exp *
+jf_append(struct s_exp *args)
 {
 	struct s_exp *rc, *e;
+	struct s_exp *exp1 = args->u.pair.car;
+	struct s_exp *exp2 = args->u.pair.cdr->u.pair.car;
 
 	if(exp1 == nil){
 		return exp2;
@@ -283,6 +285,10 @@ jf_append(struct s_exp *exp1, struct s_exp *exp2)
 	while(e->u.pair.cdr != nil)
 		e = e->u.pair.cdr;
 	e->u.pair.cdr = exp2;
+
+	sexp_free(args->u.pair.cdr->u.pair.cdr,1);
+	sexp_free(args->u.pair.cdr,0);
+	sexp_free(args,0);
 
 	return rc;
 }
@@ -530,11 +536,13 @@ jf_and(struct s_exp *args)
 static struct s_exp *
 jf_list(struct s_exp *args)
 {
+	struct s_exp *rc;
 	if(args == nil)
 		return nil;
 
-	//return jf_cons(args->u.pair.car,jf_list(args->u.pair.cdr));
-	return nil;
+	rc = cons(jf_eval(args->u.pair.car),jf_list(args->u.pair.cdr));
+	sexp_free(args,0);
+	return rc;
 }
 
 static struct s_exp *
@@ -647,7 +655,7 @@ jf_apply_special(struct s_exp *car, struct s_exp *cdr)
 {
 	struct s_exp *rc = nil;
 
-	if(!strcmp(car->u.symbol, "quote"))		rc = cdr->u.pair.car;
+	if(!strcmp(car->u.symbol, "quote"))		rc = jf_quote(cdr);
 	else if(!strcmp(car->u.symbol,"if"))		rc = jf_if(cdr);
 	else if(!strcmp(car->u.symbol,"define"))	rc = jf_define(cdr);
 	else if(!strcmp(car->u.symbol,"symbols"))	rc = st_dump(global_table);
@@ -718,7 +726,7 @@ jf_apply_builtin(struct s_exp *func, struct s_exp *args)
 	else if(!strcmp(f_name,"/"))		rc = jf_divi(args);
 	else if(!strcmp(f_name,"modulo"))	rc = jf_modulo(args);
 	else if(!strcmp(f_name,"cons"))		rc = jf_cons(args);
-	else if(!strcmp(f_name,"append"))	rc = jf_append(p,q);
+	else if(!strcmp(f_name,"append"))	rc = jf_append(args);
 	else if(!strcmp(f_name,"car"))		rc = p->u.pair.car;
 	else if(!strcmp(f_name,"cdr"))		rc = p->u.pair.cdr;
 	else if(!strcmp(f_name,"list"))		rc = jf_list(args);
