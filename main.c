@@ -364,8 +364,9 @@ jf_display(struct s_exp *args)
 }
 
 static struct s_exp *
-jf_newline()
+jf_newline(struct s_exp *args)
 {
+	sexp_free(args,1);
 	printf("\n");
 	return sexp_undef;
 }
@@ -410,12 +411,18 @@ jf_add(struct s_exp *args)
 static struct s_exp *
 jf_minus(struct s_exp *args)
 {
-	struct s_exp *p = args->u.pair.cdr;
+	struct s_exp *q, *p = args->u.pair.cdr;
 	int s = args->u.pair.car->u.integer;
+
+	sexp_free(args->u.pair.car,1);
+	sexp_free(args,0);
 
 	while(p != nil){
 		s -= p->u.pair.car->u.integer;
-		p = p->u.pair.cdr;
+		sexp_free(p->u.pair.car,1);
+		q = p->u.pair.cdr;
+		sexp_free(p,0);
+		p = q;
 	}
 	return integer2sexp(s);
 }
@@ -561,6 +568,8 @@ jf_define(struct s_exp *args)
 struct s_exp *
 jf_eval(struct s_exp *e)
 {
+	printf("eval: ");write_sexp(e);printf("\n");
+
 	struct s_exp *car, *cdr, *q;
 
 	if(is_singleton(e))
@@ -686,7 +695,7 @@ jf_apply_builtin(struct s_exp *func, struct s_exp *args)
 	else if(!strcmp(f_name,"list"))		rc = jf_list(args);
 	else if(!strcmp(f_name,"eval"))		rc = jf_eval(p);
 	else if(!strcmp(f_name,"display"))	rc = jf_display(args);
-	else if(!strcmp(f_name,"newline"))	rc = jf_newline();
+	else if(!strcmp(f_name,"newline"))	rc = jf_newline(args);
 	else if(!strcmp(f_name,"eq?"))		rc = p==q ? sexp_t : sexp_f;
 	else if(!strcmp(f_name,"atom?"))	rc = jf_atom(args);
 	else if(!strcmp(f_name,"nil?"))		rc = p==nil ? sexp_t : sexp_f;
