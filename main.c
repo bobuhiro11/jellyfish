@@ -101,8 +101,14 @@ sexp_alloc()
 struct s_exp *
 sexp_ref(struct s_exp *e)
 {
-	if(!is_singleton(e))
-		e->ref++;
+	if(is_singleton(e))
+		return e;
+
+	e->ref++;
+	if(e->type == S_EXP_PAIR || e->type == S_EXP_CLOJURE){
+		sexp_ref(e->u.pair.car);
+		sexp_ref(e->u.pair.cdr);
+	}
 	return e;
 }
 
@@ -244,7 +250,6 @@ cons(struct s_exp *car, struct s_exp *cdr)
 	(e->u).pair.car = car;
 	(e->u).pair.cdr = cdr;
 
-	printf("cons=");write_sexp(e);printf("\n");
 	return e;
 }
 
@@ -263,7 +268,6 @@ jf_cons(struct s_exp *args)
 	sexp_free(args->u.pair.cdr,0);
 	sexp_free(args,0);
 
-	printf("cons=");write_sexp(e);printf("\n");
 	return e;
 }
 
@@ -721,10 +725,6 @@ jf_apply_builtin(struct s_exp *func, struct s_exp *args)
 {
 	char *f_name = func->u.builtin;
 	struct s_exp *p, *q, *rc=nil;
-
-
-	printf("args=");write_sexp(args);printf("\n");
-	printf("func=");write_sexp(func);printf("\n");
 
 	/* eval args */
 	p = args;
