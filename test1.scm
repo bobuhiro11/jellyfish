@@ -25,5 +25,7 @@
 (atom? (quote (2 3)))
 (+ 1 5)
 
-(define f (lambda (x) 1))
+(define f (lambda (x) x))
 (display (f 100))
+(display (f 200))
+(display (f 300))
