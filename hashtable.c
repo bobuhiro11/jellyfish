@@ -82,7 +82,7 @@ struct s_exp *ht_find
 		if(table[i].key[0] == '\0')
 			return sexp_undef;
 		else if(strncmp(table[i].key, key, KEYWORD_BUFLEN)==0)
-			return sexp_ref(table[i].data);
+			return table[i].data;
 	}
 	return sexp_undef;
 }
@@ -96,6 +96,7 @@ ht_dump(const struct hashtable *table)
 	int i;
 	for(i=0;i<HASHTABLE_SIZE;i++)
 		if(table[i].key[0] != '\0'){
+			printf("ref:%1d	", table[i].data->ref);
 			printf("%-8s = ", table[i].key);
 			write_sexp(table[i].data);
 			printf("\n");

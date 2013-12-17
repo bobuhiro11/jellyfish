@@ -47,52 +47,52 @@ sexp_alloc()
 /*
  * copy sexp object.
  */
-struct s_exp *
-sexp_copy(struct s_exp *e)
-{
-	if(is_singleton(e))
-		return e;
-
-	struct s_exp *p = sexp_alloc();
-	int len;
-
-	if(e->type == S_EXP_PAIR){
-		p->type = S_EXP_PAIR;
-		p->u.pair.car = sexp_copy(e->u.pair.car);
-		p->u.pair.cdr = sexp_copy(e->u.pair.cdr);
-	}else if(e->type == S_EXP_INTEGER){
-		p->type = S_EXP_INTEGER;
-		p->u.integer = e->u.integer;
-	}else if(e->type == S_EXP_CHARACTER){
-		p->type = S_EXP_CHARACTER;
-		p->u.character = e->u.character;
-	}else if(e->type == S_EXP_STRING){
-		p->type = S_EXP_STRING;
-		p->u.string = e->u.string;
-		len = strlen( e->u.string );
-		p->u.string = malloc(len+1);
-		memset(p->u.string, 0, len+1);
-		strncpy(p->u.string, e->u.string, len);
-	}else if(e->type == S_EXP_SYMBOL){
-		p->type = S_EXP_SYMBOL;
-		len = strlen( e->u.symbol );
-		p->u.symbol = malloc(len+1);
-		memset(p->u.symbol, 0, len+1);
-		strncpy(p->u.symbol, e->u.symbol, len);
-	}else if(e->type == S_EXP_BUILTIN){
-		p->type = S_EXP_SYMBOL;
-		p->u.symbol = e->u.symbol;
-	}else if(e->type == S_EXP_SPECIAL){
-		p->type = S_EXP_SYMBOL;
-		p->u.special = e->u.special;
-	}else if(e->type == S_EXP_CLOJURE){
-		p->type = S_EXP_CLOJURE;
-		p->u.pair.car = sexp_copy(e->u.pair.car);
-		p->u.pair.cdr = sexp_copy(e->u.pair.cdr);
-	}
-
-	return p;
-}
+//struct s_exp *
+//sexp_copy(struct s_exp *e)
+//{
+//	if(is_singleton(e))
+//		return e;
+//
+//	struct s_exp *p = sexp_alloc();
+//	int len;
+//
+//	if(e->type == S_EXP_PAIR){
+//		p->type = S_EXP_PAIR;
+//		p->u.pair.car = sexp_copy(e->u.pair.car);
+//		p->u.pair.cdr = sexp_copy(e->u.pair.cdr);
+//	}else if(e->type == S_EXP_INTEGER){
+//		p->type = S_EXP_INTEGER;
+//		p->u.integer = e->u.integer;
+//	}else if(e->type == S_EXP_CHARACTER){
+//		p->type = S_EXP_CHARACTER;
+//		p->u.character = e->u.character;
+//	}else if(e->type == S_EXP_STRING){
+//		p->type = S_EXP_STRING;
+//		p->u.string = e->u.string;
+//		len = strlen( e->u.string );
+//		p->u.string = malloc(len+1);
+//		memset(p->u.string, 0, len+1);
+//		strncpy(p->u.string, e->u.string, len);
+//	}else if(e->type == S_EXP_SYMBOL){
+//		p->type = S_EXP_SYMBOL;
+//		len = strlen( e->u.symbol );
+//		p->u.symbol = malloc(len+1);
+//		memset(p->u.symbol, 0, len+1);
+//		strncpy(p->u.symbol, e->u.symbol, len);
+//	}else if(e->type == S_EXP_BUILTIN){
+//		p->type = S_EXP_SYMBOL;
+//		p->u.symbol = e->u.symbol;
+//	}else if(e->type == S_EXP_SPECIAL){
+//		p->type = S_EXP_SYMBOL;
+//		p->u.special = e->u.special;
+//	}else if(e->type == S_EXP_CLOJURE){
+//		p->type = S_EXP_CLOJURE;
+//		p->u.pair.car = sexp_copy(e->u.pair.car);
+//		p->u.pair.cdr = sexp_copy(e->u.pair.cdr);
+//	}
+//
+//	return p;
+//}
 
 /*
  * ref new sexp object.
@@ -635,8 +635,8 @@ jf_eval(struct s_exp *e)
 		case S_EXP_CLOJURE:
 			return e;
 		case S_EXP_SYMBOL:
-			//q = sexp_ref(st_find(global_table, e->u.symbol));
-			q = st_find(global_table, e->u.symbol);
+			q = sexp_ref(st_find(global_table, e->u.symbol));
+			//q = st_find(global_table, e->u.symbol);
 			sexp_free(e,1);
 			return q;
 	}
@@ -724,6 +724,7 @@ jf_apply_builtin(struct s_exp *func, struct s_exp *args)
 
 
 	printf("args=");write_sexp(args);printf("\n");
+	printf("func=");write_sexp(func);printf("\n");
 
 	/* eval args */
 	p = args;

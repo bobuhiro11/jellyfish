@@ -80,7 +80,7 @@ struct s_exp *display(struct s_exp *e);
 
 struct s_exp *sexp_alloc();
 struct s_exp *sexp_ref(struct s_exp *e);
-struct s_exp *sexp_copy(struct s_exp *e);
+//struct s_exp *sexp_copy(struct s_exp *e);
 void sexp_free(struct s_exp *e, int rec);
 
 struct s_exp *integer2sexp(int i);
