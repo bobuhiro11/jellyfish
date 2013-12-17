@@ -635,6 +635,7 @@ jf_eval(struct s_exp *e)
 		case S_EXP_CLOJURE:
 			return e;
 		case S_EXP_SYMBOL:
+			//q = sexp_ref(st_find(global_table, e->u.symbol));
 			q = st_find(global_table, e->u.symbol);
 			sexp_free(e,1);
 			return q;
