@@ -2,7 +2,7 @@
 /**********************************************
  * parser.y
  **********************************************/
-#include "common.h"  
+#include "common.h"
 %}
 /* type of grammar,token */
 %union {
@@ -14,7 +14,7 @@
 }
 
 /* token */
-%token <t_int>      INTEGER 
+%token <t_int>      INTEGER
 %token <t_char>     CHARACTER
 %token <t_symbol>   SYMBOL
 %token <t_string>   STRING
@@ -31,13 +31,13 @@
 
 %%
 input   :
-        | input exp_noeval    
+        | input exp_noeval
           {
-            struct s_exp *e = jf_eval($2); 
+            struct s_exp *e = jf_eval($2);
             if(interactive){
-              write_sexp(e); 
-              putc('\n',stdout); 
-              prompt(); 
+              write_sexp(e);
+              putc('\n',stdout);
+              prompt();
             }
             sexp_free(e,1);
           }

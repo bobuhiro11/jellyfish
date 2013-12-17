@@ -244,6 +244,8 @@ jf_cons(struct s_exp *car, struct s_exp *cdr)
 	e->type = S_EXP_PAIR;
 	(e->u).pair.car = car;
 	(e->u).pair.cdr = cdr;
+
+	printf("cons=");write_sexp(e);printf("\n");
 	return e;
 }
 
@@ -383,9 +385,9 @@ jf_display(struct s_exp *args)
 
 	while(p != nil){
 		_write_sexp(p->u.pair.car,1);
-		//sexp_free(p->u.pair.car,1);
+		sexp_free(p->u.pair.car,1);
 		q = p->u.pair.cdr;
-		//sexp_free(p,0);
+		sexp_free(p,0);
 		p = q;
 	}
 
@@ -423,9 +425,9 @@ jf_add(struct s_exp *args)
 
 	while(p != nil){
 		s += p->u.pair.car->u.integer;
-		//sexp_free(p->u.pair.car,1);
+		sexp_free(p->u.pair.car,1);
 		q = p->u.pair.cdr;
-		//sexp_free(p,0);
+		sexp_free(p,0);
 		p = q;
 	}
 	return integer2sexp(s);
@@ -716,10 +718,6 @@ jf_apply_builtin(struct s_exp *func, struct s_exp *args)
 	else if(!strcmp(f_name,"<="))		rc = p->u.integer <= q->u.integer ? sexp_t : sexp_f;
 	else if(!strcmp(f_name,">="))		rc = p->u.integer >= q->u.integer ? sexp_t : sexp_f;
 
-	sexp_free(args, 1);
-	/*
-	 * must release "func" because it is pointer of hashtable->data object which reference count is increased.
-	 */
 	sexp_free(func, 1);
 
 	return rc;
