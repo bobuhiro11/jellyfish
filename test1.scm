@@ -4,10 +4,10 @@
 (display (if #t
            1
            2))
-(lambda (x) (+ x 1))
+(define f (lambda (x) (+ x 1)))
+(f 2)
 (define x 5)
 (define y x)
-(define f (lambda (x) (+ x 1)))
 
 (define g
   (lambda (x)

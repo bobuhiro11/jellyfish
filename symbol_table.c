@@ -36,6 +36,9 @@ st_dump(const struct symbol_table *stable)
 	return sexp_undef;
 }
 
+/*
+ * insert data to symbol table.
+ */
 struct s_exp *
 st_insert(struct symbol_table *stable, const char *key, struct s_exp *data)
 {

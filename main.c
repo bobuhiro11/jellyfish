@@ -678,7 +678,7 @@ struct s_exp *
 jf_apply_clojure(struct s_exp *clojure, struct s_exp *args)
 {
 	struct symbol_table *p;
-	struct s_exp *e1, *e2, *rc;
+	struct s_exp *e1, *e2, *rc, *q;
 
 	p = st_create();				/* new scope*/
 
@@ -688,15 +688,25 @@ jf_apply_clojure(struct s_exp *clojure, struct s_exp *args)
 	while(e1 && e2){
 		st_insert(p, e1->u.pair.car->u.symbol,jf_eval(e2->u.pair.car));
 
-		e1 = e1->u.pair.cdr;
-		e2 = e2->u.pair.cdr;
+		q = e1->u.pair.cdr;
+		sexp_free(e1->u.pair.car,1);
+		sexp_free(e1,0);
+		e1 = q;
+
+		q = e2->u.pair.cdr;
+		sexp_free(e2,0);
+		e2 = q;
 	}
 
 	p->next = global_table;				/* add new scope */
 	global_table = p;
 
-	rc = sexp_copy(clojure->u.pair.cdr->u.pair.car);/* copy clojure expression and eval */
+	rc = clojure->u.pair.cdr->u.pair.car;		/* copy clojure expression and eval */
 	rc = jf_eval(rc);
+
+	sexp_free(clojure->u.pair.cdr->u.pair.cdr,1);
+	sexp_free(clojure->u.pair.cdr,0);
+	sexp_free(clojure,0);
 
 	p = global_table;				/* remove new scope */
 	global_table = global_table->next;
