@@ -5,7 +5,7 @@
            1
            2))
 
-((lambda (x) 1) 100)
+(display ((lambda (x) (+ x 10)) 100))
 
 (define x 5)
 (define y x)
