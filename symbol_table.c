@@ -45,6 +45,8 @@ st_insert(struct symbol_table *stable, const char *key, struct s_exp *data)
 /*
  * find data from symbol table.
  * return data if success, sexp_undef otherwise.
+ *
+ * Causion: caller must use sexp_ref.
  */
 struct s_exp *
 st_find(const struct symbol_table *stable, const char *key)

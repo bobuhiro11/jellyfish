@@ -125,6 +125,12 @@ sexp_free(struct s_exp *e, int rec)
 			sexp_free(e->u.pair.cdr,1);
 		}
 		free(e);
+	}else if(e->type == S_EXP_CLOJURE){
+		if(rec){
+			sexp_free(e->u.pair.car,1);
+			sexp_free(e->u.pair.cdr,1);
+		}
+		free(e);
 	}else if(e->type == S_EXP_INTEGER){
 		free(e);
 	}else if(e->type == S_EXP_CHARACTER){
@@ -224,6 +230,7 @@ clojure2sexp(struct s_exp *p)
 	e->type = S_EXP_CLOJURE;
 	(e->u).pair.car = p->u.pair.car;
 	(e->u).pair.cdr = p->u.pair.cdr;
+	sexp_free(p,0);
 	return e;
 }
 
@@ -550,7 +557,7 @@ static struct s_exp *
 jf_define(struct s_exp *args)
 {
 	struct s_exp *s = args->u.pair.car;
-	struct s_exp *p = sexp_ref(args->u.pair.cdr->u.pair.car);
+	struct s_exp *p = args->u.pair.cdr->u.pair.car;
 	struct s_exp *q;
 
 	if(s->type == S_EXP_PAIR){	/* syntax sugar */
@@ -562,6 +569,11 @@ jf_define(struct s_exp *args)
 
 	p = jf_eval(p);
 	st_insert(global_table, s->u.symbol, p);
+
+	sexp_free(args->u.pair.car,1);
+	sexp_free(args->u.pair.cdr->u.pair.cdr,1);
+	sexp_free(args->u.pair.cdr,0);
+	sexp_free(args,0);
 
 	return sexp_undef;
 }
