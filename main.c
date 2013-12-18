@@ -546,10 +546,14 @@ jf_and(struct s_exp *args)
 static struct s_exp *
 jf_list(struct s_exp *args)
 {
+	struct s_exp *rc;
+	debug("jf_list",args);
 	if(args == nil)
 		return nil;
 
-	return cons(args->u.pair.car,jf_list(args->u.pair.cdr));
+	rc = cons(args->u.pair.car,jf_list(args->u.pair.cdr));
+	sexp_free(args,0);
+	return rc;
 }
 
 static struct s_exp *
