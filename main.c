@@ -470,6 +470,24 @@ jf_add(struct s_exp *args)
 	return integer2sexp(s);
 }
 
+/*
+ * less or equal
+ */
+static struct s_exp *
+jf_leq(struct s_exp *args)
+{
+	struct s_exp *p;
+	struct s_exp *q;
+	struct s_exp *rc;
+
+	p = args->u.pair.car;
+	q = args->u.pair.cdr->u.pair.car;
+
+	rc = p->u.integer <= q->u.integer ? sexp_t : sexp_f;
+	sexp_free(args,1);
+	return rc;
+}
+
 static struct s_exp *
 jf_minus(struct s_exp *args)
 {
@@ -760,7 +778,7 @@ jf_apply_builtin(struct s_exp *func, struct s_exp *args)
 	else if(!strcmp(f_name,"="))		rc = p->u.integer == q->u.integer ? sexp_t : sexp_f;
 	else if(!strcmp(f_name,">"))		rc = p->u.integer > q->u.integer ? sexp_t : sexp_f;
 	else if(!strcmp(f_name,"<"))		rc = p->u.integer < q->u.integer ? sexp_t : sexp_f;
-	else if(!strcmp(f_name,"<="))		rc = p->u.integer <= q->u.integer ? sexp_t : sexp_f;
+	else if(!strcmp(f_name,"<="))		rc = jf_leq(args);
 	else if(!strcmp(f_name,">="))		rc = p->u.integer >= q->u.integer ? sexp_t : sexp_f;
 
 	sexp_free(func, 1);

@@ -24,5 +24,6 @@
 
 (list (+ 0 1) (- 4 2) (- 6 3))
 (quote (2 3))
-(append (quote ( 2 3)) (quote (4 5)))
+(display (append (quote ( 2 3)) (quote (4 5))))
+(display (<= (+ 2 3) (+ 2 3 (- 0 1)))) ; => #f
 (display (+ (+ x 5) x))
