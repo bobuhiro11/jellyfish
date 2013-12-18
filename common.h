@@ -90,7 +90,7 @@ struct s_exp *string2sexp(char *s);
 struct s_exp *builtin2sexp(char *s);
 struct s_exp *special2sexp(char *s);
 struct s_exp *clojure2sexp(struct s_exp *e);
-struct s_exp *jf_cons(struct s_exp *car, struct s_exp *cdr);
+struct s_exp *cons(struct s_exp *car, struct s_exp *cdr);
 struct s_exp *jf_append(struct s_exp *exp1, struct s_exp *exp2);
 struct s_exp *jf_eval(struct s_exp *e);
 struct s_exp *jf_apply_builtin(struct s_exp *func, struct s_exp *args);

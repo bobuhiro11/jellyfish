@@ -51,8 +51,8 @@ exp_noeval : INTEGER    { $$ = integer2sexp($1);}     /* no evalute s-expression
         | QUOTE exp_noeval
           {
                struct s_exp *car = symbol2sexp("quote");
-               struct s_exp *cdr = jf_cons($2, nil);
-               $$ = jf_cons(car,cdr);
+               struct s_exp *cdr = cons($2, nil);
+               $$ = cons(car,cdr);
           }
         | LEFT_PAREN members_noeval
           { 
@@ -62,7 +62,7 @@ exp_noeval : INTEGER    { $$ = integer2sexp($1);}     /* no evalute s-expression
 members_noeval : RIGHT_PAREN  { $$ = nil; }
         | exp_noeval members_noeval
           {
-            $$ = jf_cons($1,$2);
+            $$ = cons($1,$2);
           }
         ;
 %%
