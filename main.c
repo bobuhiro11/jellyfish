@@ -30,6 +30,15 @@ yywrap()
 	return 1;
 }
 
+void
+debug(const char *mes, struct s_exp *e){
+#ifndef NOFREE
+	printf("%s: ",mes);
+	write_sexp(e);
+	printf("\n");
+#endif
+}
+
 /*
  * alloc new sexp object.
  * return sexp object if success, NULL otherwise.
@@ -249,7 +258,7 @@ cons(struct s_exp *car, struct s_exp *cdr)
 	(e->u).pair.car = car;
 	(e->u).pair.cdr = cdr;
 
-	printf("cons=");write_sexp(e);printf("\n");
+	debug("cons",e);
 	return e;
 }
 
@@ -265,7 +274,7 @@ jf_cons(struct s_exp *args)
 	sexp_free(args->u.pair.cdr,0);
 	sexp_free(args,0);
 
-	printf("cons=");write_sexp(e);printf("\n");
+	debug("cons",e);
 	return e;
 }
 
@@ -696,8 +705,7 @@ jf_apply_builtin(struct s_exp *func, struct s_exp *args)
 	char *f_name = func->u.builtin;
 	struct s_exp *p, *q, *rc=nil;
 
-
-	printf("args=");write_sexp(args);printf("\n");
+	debug("args",args);
 
 	/* eval args */
 	p = args;
