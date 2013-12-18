@@ -30,3 +30,8 @@
 
 (display ((lambda (z) (+ z 1)) 4))
 (display ((lambda (x) (+ x 1)) ((lambda () 1))))
+
+(define fanc1 (lambda () 2))
+(display (fanc1))
+;(define fanc2 (lambda () (+ 1 2)))
+;(fanc2)

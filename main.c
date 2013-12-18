@@ -99,7 +99,7 @@ sexp_copy(struct s_exp *e)
 		p->u.pair.car = sexp_copy(e->u.pair.car);
 		p->u.pair.cdr = sexp_copy(e->u.pair.cdr);
 	}
-
+	p->ref=1;
 	return p;
 }
 
@@ -135,7 +135,8 @@ sexp_free(struct s_exp *e, int rec)
 #endif
 	if(is_singleton(e))
 		return;
-	else if(--e->ref >= 1)
+
+	if(--e->ref >= 1)
 		return;
 
 	if(e->type == S_EXP_PAIR){
