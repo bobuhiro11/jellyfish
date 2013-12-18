@@ -8,6 +8,7 @@ FLEX   				:= flex
 MAIN   				:= main
 HASH	 				:= hashtable
 SYMBOL 				:= symbol_table
+CLAGS 				:= -O0
 
 all : $(TARGET) $(TARGET_NOFREE)
 
@@ -18,10 +19,10 @@ test : $(TARGET_NOFREE) test.scm
 	./$(TARGET_NOFREE) test.scm
 
 $(TARGET_NOFREE) : $(PARSER).c $(LEXER).c $(MAIN).c $(HASH).c $(SYMBOL).c
-	$(CC) -g -o $(TARGET_NOFREE) -DNOFREE $(PARSER).c $(LEXER).c $(MAIN).c $(HASH).c $(SYMBOL).c
+	$(CC) -g -o $(CFLAGS) $(TARGET_NOFREE) -DNOFREE $(PARSER).c $(LEXER).c $(MAIN).c $(HASH).c $(SYMBOL).c
 
 $(TARGET) : $(PARSER).c $(LEXER).c $(MAIN).c $(HASH).c $(SYMBOL).c
-	$(CC) -g -o $(TARGET) $(PARSER).c $(LEXER).c $(MAIN).c $(HASH).c $(SYMBOL).c
+	$(CC) -g -o $(CFLAGS) $(TARGET) $(PARSER).c $(LEXER).c $(MAIN).c $(HASH).c $(SYMBOL).c
 
 $(PARSER).c : $(PARSER).y
 	$(BISON) -o $(PARSER).c -d $(PARSER).y

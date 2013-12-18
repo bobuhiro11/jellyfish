@@ -27,3 +27,6 @@
 (display (append (quote ( 2 3)) (quote (4 5))))
 (display (<= (+ 2 3) (+ 2 3 (- 0 1)))) ; => #f
 (display (+ (+ x 5) x))
+
+(display ((lambda (z) (+ z 1)) 4))
+(display ((lambda (x) (+ x 1)) ((lambda () 1))))
