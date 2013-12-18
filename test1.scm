@@ -23,4 +23,6 @@
 (display (+ 100 (+ (+ 10)) (+ 10 40)))  ; => 160
 
 (list (+ 0 1) (- 4 2) (- 6 3))
-;(append (quote ( 2 3)) (quote (4 5)))
+(quote (2 3))
+(append (quote ( 2 3)) (quote (4 5)))
+(display (+ (+ x 5) x))
