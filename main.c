@@ -114,6 +114,10 @@ sexp_ref(struct s_exp *e)
 void
 sexp_free(struct s_exp *e, int rec)
 {
+
+#ifdef NOFREE
+	return;
+#endif
 	if(is_singleton(e))
 		return;
 	else if(--e->ref >= 1)

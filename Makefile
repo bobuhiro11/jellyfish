@@ -1,17 +1,24 @@
-CC     := gcc
-TARGET := jellyfish
-PARSER := parser
-LEXER  := lexer
-BISON  := bison
-FLEX   := flex
-MAIN   := main
-HASH	 := hashtable
-SYMBOL := symbol_table
+CC     				:= gcc
+TARGET 				:= jellyfish
+TARGET_NOFREE := jellyfish_nofree # no memory management
+PARSER 				:= parser
+LEXER  				:= lexer
+BISON  				:= bison
+FLEX   				:= flex
+MAIN   				:= main
+HASH	 				:= hashtable
+SYMBOL 				:= symbol_table
 
-all : $(TARGET)
+all : $(TARGET) $(TARGET_NOFREE)
 
 run : $(TARGET)
 	./$(TARGET)
+
+test : $(TARGET_NOFREE) test.scm
+	./$(TARGET_NOFREE) test.scm
+
+$(TARGET_NOFREE) : $(PARSER).c $(LEXER).c $(MAIN).c $(HASH).c $(SYMBOL).c
+	$(CC) -g -o $(TARGET_NOFREE) -DNOFREE $(PARSER).c $(LEXER).c $(MAIN).c $(HASH).c $(SYMBOL).c
 
 $(TARGET) : $(PARSER).c $(LEXER).c $(MAIN).c $(HASH).c $(SYMBOL).c
 	$(CC) -g -o $(TARGET) $(PARSER).c $(LEXER).c $(MAIN).c $(HASH).c $(SYMBOL).c
@@ -24,4 +31,4 @@ $(LEXER).c : $(LEXER).l
 	$(FLEX) -o $(LEXER).c -I $(LEXER).l
 
 clean :
-	rm $(TARGET) $(PARSER).c $(PARSER).h $(LEXER).c
+	rm $(TARGET) $(TARGET_NOFREE) $(PARSER).c $(PARSER).h $(LEXER).c
