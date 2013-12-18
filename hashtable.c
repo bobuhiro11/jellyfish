@@ -82,7 +82,7 @@ struct s_exp *ht_find
 		if(table[i].key[0] == '\0')
 			return sexp_undef;
 		else if(strncmp(table[i].key, key, KEYWORD_BUFLEN)==0)
-			return sexp_ref(table[i].data);
+			return table[i].data;
 	}
 	return sexp_undef;
 }
