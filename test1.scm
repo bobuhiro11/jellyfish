@@ -13,9 +13,14 @@
   (lambda (x)
     (if (<= x 1)
       1
-      (* x (f (- x 1))))))
+      (+ x (g (- x 1))))))
+
 (display (+ (+ (+ 1) 2) (+ 1 2))) ; => 6
 
-(cons 1 (cons 2 (cons 3 nil)))
+(cons (+ 1 0) (cons 2 (cons 3 nil)))    ; => (1 2 3)
+
+(display (- 100 (- (- 10)) (- 10 40)))  ; => 120
+(display (+ 100 (+ (+ 10)) (+ 10 40)))  ; => 160
+
 ;(list (+ 0 1) (/ 4 2) (- 6 3))
 ;(append (quote ( 2 3)) (quote (4 5)))

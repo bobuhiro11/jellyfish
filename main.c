@@ -465,13 +465,18 @@ jf_add(struct s_exp *args)
 static struct s_exp *
 jf_minus(struct s_exp *args)
 {
-	struct s_exp *p = args->u.pair.cdr;
+	struct s_exp *q,*p = args->u.pair.cdr;
 	int s = args->u.pair.car->u.integer;
 
 	while(p != nil){
 		s -= p->u.pair.car->u.integer;
-		p = p->u.pair.cdr;
+		sexp_free(p->u.pair.car,1);
+		q = p->u.pair.cdr;
+		sexp_free(p,0);
+		p = q;
 	}
+	sexp_free(args->u.pair.car,1);
+	sexp_free(args,0);
 	return integer2sexp(s);
 }
 
