@@ -33,5 +33,7 @@
 
 (define fanc1 (lambda () 2))
 (display (fanc1))
-;(define fanc2 (lambda () (+ 1 2)))
-;(fanc2)
+(define fanc2 (lambda () (+ 2 3)))
+(display (fanc2))
+(display
+  (g 10))

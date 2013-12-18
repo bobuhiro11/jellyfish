@@ -49,7 +49,7 @@ sexp_alloc()
 	struct s_exp *rc =  (struct s_exp*)malloc(sizeof(struct s_exp));
 	if(!rc)
 		return NULL;
-	rc->ref = 1;
+	//rc->ref = 1;
 	return rc;
 }
 
@@ -89,17 +89,17 @@ sexp_copy(struct s_exp *e)
 		memset(p->u.symbol, 0, len+1);
 		strncpy(p->u.symbol, e->u.symbol, len);
 	}else if(e->type == S_EXP_BUILTIN){
-		p->type = S_EXP_SYMBOL;
+		p->type = S_EXP_BUILTIN;
 		p->u.symbol = e->u.symbol;
 	}else if(e->type == S_EXP_SPECIAL){
-		p->type = S_EXP_SYMBOL;
+		p->type = S_EXP_SPECIAL;
 		p->u.special = e->u.special;
 	}else if(e->type == S_EXP_CLOJURE){
 		p->type = S_EXP_CLOJURE;
 		p->u.pair.car = sexp_copy(e->u.pair.car);
 		p->u.pair.cdr = sexp_copy(e->u.pair.cdr);
 	}
-	p->ref=1;
+	//p->ref=1;
 	return p;
 }
 
@@ -107,6 +107,7 @@ sexp_copy(struct s_exp *e)
  * ref new sexp object.
  * return sexp object if success, NULL otherwise.
  */
+/*
 struct s_exp *
 sexp_ref(struct s_exp *e)
 {
@@ -120,6 +121,7 @@ sexp_ref(struct s_exp *e)
 	}
 	return e;
 }
+*/
 
 /*
  * free sexp recursive object if reference count is 0.
@@ -136,8 +138,10 @@ sexp_free(struct s_exp *e, int rec)
 	if(is_singleton(e))
 		return;
 
+	/*
 	if(--e->ref >= 1)
 		return;
+	*/
 
 	if(e->type == S_EXP_PAIR){
 		if(rec){
@@ -651,7 +655,7 @@ jf_define(struct s_exp *args)
 struct s_exp *
 jf_eval(struct s_exp *e)
 {
-	struct s_exp *car, *cdr, *q;
+	struct s_exp *car, *cdr, *q, *p;
 
 	if(is_singleton(e))
 		return e;
@@ -665,9 +669,10 @@ jf_eval(struct s_exp *e)
 		case S_EXP_CLOJURE:
 			return e;
 		case S_EXP_SYMBOL:
-			q = sexp_ref(st_find(global_table, e->u.symbol));
+			q = st_find(global_table, e->u.symbol);
+			p = sexp_copy(q);
 			sexp_free(e,1);
-			return q;
+			return p;
 	}
 
 	car = e->u.pair.car;
@@ -732,6 +737,8 @@ jf_apply_clojure(struct s_exp *clojure, struct s_exp *args)
 	p->next = global_table;				/* add new scope */
 	global_table = p;
 
+
+	debug("in clojure: ",clojure->u.pair.cdr->u.pair.car);
 	/*
 	 * copy and eval clojure body.
 	 *
@@ -811,6 +818,7 @@ main(int argc, char **argv)
 	global_table = st_create();
 	st_init(global_table);
 
+	st_dump(global_table);
 	if(argc > 1){
 		/* from source code */
 		interactive = 0;
