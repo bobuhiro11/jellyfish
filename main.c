@@ -471,6 +471,37 @@ jf_atom(struct s_exp *args)
 }
 
 static struct s_exp *
+jf_cmp(struct s_exp *args, int flag)
+{
+	int r;
+	struct s_exp *p;
+	struct s_exp *q;
+	struct s_exp *rc;
+
+	p = args->u.pair.car;
+	q = args->u.pair.cdr->u.pair.car;
+
+	switch(flag){
+		case CMP_LESS:
+			r = p->u.integer < q->u.integer;
+			break;
+		case CMP_LESS_EQUAL:
+			r = p->u.integer <= q->u.integer;
+			break;
+		case CMP_GREATER_EQUAL:
+			r = p->u.integer >= q->u.integer;
+			break;
+		case CMP_GREATER:
+			r = p->u.integer > q->u.integer;
+			break;
+	}
+
+	rc = r ? sexp_t : sexp_f;
+	sexp_free(args,1);
+	return rc;
+}
+
+static struct s_exp *
 jf_add(struct s_exp *args)
 {
 	struct s_exp *p = args;
@@ -485,24 +516,6 @@ jf_add(struct s_exp *args)
 		p = q;
 	}
 	return integer2sexp(s);
-}
-
-/*
- * less or equal
- */
-static struct s_exp *
-jf_leq(struct s_exp *args)
-{
-	struct s_exp *p;
-	struct s_exp *q;
-	struct s_exp *rc;
-
-	p = args->u.pair.car;
-	q = args->u.pair.cdr->u.pair.car;
-
-	rc = p->u.integer <= q->u.integer ? sexp_t : sexp_f;
-	sexp_free(args,1);
-	return rc;
 }
 
 static struct s_exp *
@@ -807,10 +820,10 @@ jf_apply_builtin(struct s_exp *func, struct s_exp *args)
 	else if(!strcmp(f_name,"and"))		rc = jf_and(args);
 	else if(!strcmp(f_name,"not"))		rc = p == sexp_f ? sexp_t : sexp_f;
 	else if(!strcmp(f_name,"="))		rc = p->u.integer == q->u.integer ? sexp_t : sexp_f;
-	else if(!strcmp(f_name,">"))		rc = p->u.integer > q->u.integer ? sexp_t : sexp_f;
-	else if(!strcmp(f_name,"<"))		rc = p->u.integer < q->u.integer ? sexp_t : sexp_f;
-	else if(!strcmp(f_name,"<="))		rc = jf_leq(args);
-	else if(!strcmp(f_name,">="))		rc = p->u.integer >= q->u.integer ? sexp_t : sexp_f;
+	else if(!strcmp(f_name,">"))		rc = jf_cmp(args, CMP_GREATER);
+	else if(!strcmp(f_name,"<"))		rc = jf_cmp(args, CMP_LESS);
+	else if(!strcmp(f_name,"<="))		rc = jf_cmp(args, CMP_LESS_EQUAL);
+	else if(!strcmp(f_name,">="))		rc = jf_cmp(args, CMP_GREATER_EQUAL);
 
 	sexp_free(func, 1);
 

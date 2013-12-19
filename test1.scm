@@ -61,3 +61,7 @@
   (newline))
 
 (display (atom? 1))
+(display (< 1 2))
+(display (<= 1 1))
+(display (>= 1 1))
+(display (> 1 1))

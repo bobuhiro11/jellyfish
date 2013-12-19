@@ -13,16 +13,20 @@
 #define HASHTABLE_SIZE 	101
 #define KEYWORD_BUFLEN 	256
 
+#define CMP_LESS 		1
+#define CMP_LESS_EQUAL		2
+#define CMP_GREATER_EQUAL	3
+#define CMP_GREATER		4
+
 /* singleton type */
 #define nil  		((struct s_exp*)0)
 #define sexp_t		((struct s_exp*)0xFFFFFFFf)
 #define sexp_f		((struct s_exp*)0xFFFFFFFe)
 #define sexp_undef	((struct s_exp*)0xFFFFFFFd)
 
-/* 
- * in fact builtin and special type is singleton.
- * these object exist only in global table.
- */
+#define is_singleton(e)	\
+	( e==nil || e==sexp_t || e==sexp_f || e==sexp_undef )
+
 #define S_EXP_PAIR 	1
 #define S_EXP_INTEGER	2
 #define S_EXP_CHARACTER	3
@@ -31,9 +35,6 @@
 #define S_EXP_BUILTIN	6 
 #define S_EXP_SPECIAL	7
 #define S_EXP_CLOJURE	8
-
-#define is_singleton(e)	\
-	( e==nil || e==sexp_t || e==sexp_f || e==sexp_undef )
 
 /***************************************************
  * structure definition
