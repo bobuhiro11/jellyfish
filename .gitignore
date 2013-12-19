@@ -1,6 +1,6 @@
 jellyfish
 jellyfish_nofree
-jellyfish.dSYM
+*.dSYM
 parser.c
 parser.h
 lexer.c
