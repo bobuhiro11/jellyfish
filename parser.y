@@ -9,6 +9,7 @@
   int  t_int;
   char t_char;
   char *t_symbol;
+  char *t_quote;
   char *t_string;
   struct s_exp *t_sexp;
 }
@@ -17,6 +18,7 @@
 %token <t_int>      INTEGER
 %token <t_char>     CHARACTER
 %token <t_symbol>   SYMBOL
+%token <t_quote>    QUOTE
 %token <t_string>   STRING
 %token NIL
 %token TRUE
@@ -50,12 +52,13 @@ exp_noeval : INTEGER    { $$ = integer2sexp($1);}     /* no evalute s-expression
         | FALSE		      { $$ = sexp_f;}
         | QUOTE exp_noeval
           {
-               struct s_exp *car = symbol2sexp("quote");
+               struct s_exp *car = symbol2sexp($1);
                struct s_exp *cdr = cons($2, nil);
                $$ = cons(car,cdr);
+               debug("QUOTE",$$);
           }
         | LEFT_PAREN members_noeval
-          { 
+          {
                $$ = $2;
           }
         ;

@@ -18,7 +18,13 @@ static int paren_num=0;
 "nil"                               { return NIL; }
 "#t"	                              { return TRUE; }
 "#f"	                              { return FALSE; }
-"'"	                                { return QUOTE; }
+"'"	                                { 
+	int n = strlen("quote");
+	char *p = (char*)malloc(n+1);
+	yylval.t_symbol = p;
+	strcpy(yylval.t_symbol,"quote");
+	return QUOTE;
+}
 [a-z|A-Z|\+|\-|\*|\/|?|=|>|<|_]+[a-zA-Z0-9]*    {
   int n = strlen(yytext);
   char *p = (char*)malloc(n+1);

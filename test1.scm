@@ -125,7 +125,7 @@
 (define quicksort
   (lambda (x)
     (if (null? x)
-      nil
+      '()
       ((lambda (pivot)
         (append
           (quicksort (part <  x pivot))
@@ -134,10 +134,13 @@
             (quicksort (part >  x pivot)))))
        (car x)))))
 
-(define before (quote (20 4 6 2 9 8 10 38 92 88)))
+(define before '(20 4 6 2 9 8 10 38 92 88))
 (define after (quicksort before))
 
 (display "before = " before)
 (newline)
 (display "after  = " after)
 (newline)
+
+(display (quote (1 2 3)))
+(display '(1 2 3))
