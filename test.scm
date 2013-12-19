@@ -24,7 +24,8 @@
   (lambda (x)
     (if (null? (cdr x)) (car x)
       (tail (cdr x)))))
-(tail (quote (3 4 5)))
+(display "tail 3 4 5 =" (tail (quote (3 4 5))))
+(newline)
 
 ;
 ; 最大値

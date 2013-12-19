@@ -17,6 +17,7 @@
 #define CMP_LESS_EQUAL		2
 #define CMP_GREATER_EQUAL	3
 #define CMP_GREATER		4
+#define CMP_EQUAL		5
 
 /* singleton type */
 #define nil  		((struct s_exp*)0)

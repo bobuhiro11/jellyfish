@@ -523,6 +523,9 @@ jf_cmp(struct s_exp *args, int flag)
 		case CMP_GREATER:
 			r = p->u.integer > q->u.integer;
 			break;
+		case CMP_EQUAL:
+			r = p->u.integer == q->u.integer;
+			break;
 	}
 
 	rc = r ? sexp_t : sexp_f;
@@ -792,7 +795,6 @@ jf_apply_clojure(struct s_exp *clojure, struct s_exp *args)
 	global_table = p;
 
 
-	debug("in clojure: ",clojure->u.pair.cdr->u.pair.car);
 	/*
 	 * copy and eval clojure body.
 	 *
@@ -852,7 +854,7 @@ jf_apply_builtin(struct s_exp *func, struct s_exp *args)
 	else if(!strcmp(f_name,"or"))		rc = jf_or(args);
 	else if(!strcmp(f_name,"and"))		rc = jf_and(args);
 	else if(!strcmp(f_name,"not"))		rc = p == sexp_f ? sexp_t : sexp_f;
-	else if(!strcmp(f_name,"="))		rc = p->u.integer == q->u.integer ? sexp_t : sexp_f;
+	else if(!strcmp(f_name,"="))		rc = jf_cmp(args, CMP_EQUAL);
 	else if(!strcmp(f_name,">"))		rc = jf_cmp(args, CMP_GREATER);
 	else if(!strcmp(f_name,"<"))		rc = jf_cmp(args, CMP_LESS);
 	else if(!strcmp(f_name,"<="))		rc = jf_cmp(args, CMP_LESS_EQUAL);
@@ -872,7 +874,6 @@ main(int argc, char **argv)
 	global_table = st_create();
 	st_init(global_table);
 
-	st_dump(global_table);
 	if(argc > 1){
 		/* from source code */
 		interactive = 0;
