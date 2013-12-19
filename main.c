@@ -626,7 +626,29 @@ jf_or(struct s_exp *args)
 	p = args->u.pair.car;
 	q = args->u.pair.cdr;
 
-	return (p != sexp_f) ? sexp_t : jf_or(q);
+	if(p != sexp_f){
+		sexp_free(args,1);
+		return sexp_t;
+	}else{
+		sexp_free(p,1);
+		sexp_free(args,0);
+		return jf_or(q);
+	}
+
+}
+
+static struct s_exp *
+jf_eq(struct s_exp *args)
+{
+	struct s_exp *p, *q, *rc;
+
+	p = args->u.pair.car;
+	q = args->u.pair.cdr->u.pair.car;
+
+	rc = p==q ? sexp_t: sexp_f;
+	sexp_free(args,1);
+
+	return rc;
 }
 
 static struct s_exp *
@@ -640,7 +662,29 @@ jf_and(struct s_exp *args)
 	p = args->u.pair.car;
 	q = args->u.pair.cdr;
 
-	return (p == sexp_f) ? sexp_f : jf_and(q);
+	if(p == sexp_f){
+		sexp_free(args,1);
+		return sexp_f;
+	}else{
+		sexp_free(p,1);
+		sexp_free(args,0);
+		return jf_and(q);
+	}
+}
+
+static struct s_exp *
+jf_not(struct s_exp *args)
+{
+	struct s_exp *p, *rc;
+
+	p = args->u.pair.car;
+	if(p != sexp_f)
+		rc = sexp_f;
+	else
+		rc = sexp_t;
+
+	sexp_free(args,1);
+	return rc;
 }
 
 static struct s_exp *
@@ -765,7 +809,7 @@ jf_apply_special(struct s_exp *car, struct s_exp *cdr)
 	if(!strcmp(car->u.symbol, "quote"))		rc = jf_quote(cdr);
 	else if(!strcmp(car->u.symbol,"if"))		rc = jf_if(cdr);
 	else if(!strcmp(car->u.symbol,"define"))	rc = jf_define(cdr);
-	else if(!strcmp(car->u.symbol,"symbols"))	rc = st_dump(global_table);
+	else if(!strcmp(car->u.symbol,"symbols")){	rc = st_dump(global_table); sexp_free(cdr,1);}
 	else if(!strcmp(car->u.symbol,"lambda"))	rc = clojure2sexp(cdr);
 	else if(!strcmp(car->u.symbol,"begin"))		rc = jf_begin(cdr);
 
@@ -836,12 +880,6 @@ jf_apply_builtin(struct s_exp *func, struct s_exp *args)
 		p = p->u.pair.cdr;
 	}
 
-	if(args){
-		p = args->u.pair.car;
-		if(args->u.pair.cdr)
-			q = args->u.pair.cdr->u.pair.car;
-	}
-
 	if(!strcmp(f_name,"+"))			rc = jf_add(args);
 	else if(!strcmp(f_name,"-"))		rc = jf_minus(args);
 	else if(!strcmp(f_name,"*"))		rc = jf_multi(args);
@@ -855,13 +893,13 @@ jf_apply_builtin(struct s_exp *func, struct s_exp *args)
 	else if(!strcmp(f_name,"eval"))		rc = jf_eval(p);
 	else if(!strcmp(f_name,"display"))	rc = jf_display(args);
 	else if(!strcmp(f_name,"newline"))	rc = jf_newline(args);
-	else if(!strcmp(f_name,"eq?"))		rc = p==q ? sexp_t : sexp_f;
+	else if(!strcmp(f_name,"eq?"))		rc = jf_eq(args);
 	else if(!strcmp(f_name,"atom?"))	rc = jf_atom(args);
 	else if(!strcmp(f_name,"nil?"))		rc = jf_null(args);
 	else if(!strcmp(f_name,"null?"))	rc = jf_null(args);
 	else if(!strcmp(f_name,"or"))		rc = jf_or(args);
 	else if(!strcmp(f_name,"and"))		rc = jf_and(args);
-	else if(!strcmp(f_name,"not"))		rc = p == sexp_f ? sexp_t : sexp_f;
+	else if(!strcmp(f_name,"not"))		rc = jf_not(args);
 	else if(!strcmp(f_name,"="))		rc = jf_cmp(args, CMP_EQUAL);
 	else if(!strcmp(f_name,">"))		rc = jf_cmp(args, CMP_GREATER);
 	else if(!strcmp(f_name,"<"))		rc = jf_cmp(args, CMP_LESS);

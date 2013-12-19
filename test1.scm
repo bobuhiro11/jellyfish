@@ -103,6 +103,7 @@
 (display "tail 3 4 5 =" (tail (quote (3 4 5))))
 (newline)
 
+(symbols)
 ;
 ; クイックソート
 ;
@@ -147,3 +148,8 @@
 
 (display (/ 36 2 3))
 (display (modulo 35 4))
+(display (or #f nil 3 #f #f))		; => #t
+(display (and #t 4 #f #f 100))		; => #f
+(display (not (and #t 4 #f #f 100)))	; => #t
+(display (eq? #t #t)) ; => #t
+(display (eq? #t #f)) ; => #f
