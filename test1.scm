@@ -31,9 +31,21 @@
 (display ((lambda (z) (+ z 1)) 4))
 (display ((lambda (x) (+ x 1)) ((lambda () 1))))
 
-(define fanc1 (lambda () 2))
-(display (fanc1))
-(define fanc2 (lambda () (+ 2 3)))
-(display (fanc2))
+(define func1 (lambda () 2))
+(display (func1))
+(define func2 (lambda () (+ 2 3)))
+(display (func2))
 (display
   (g 10))
+
+(define plus2
+  (lambda (x)
+    (+ x 2)))
+(define plus4
+  (lambda (x)
+    (+ x 4)))
+(define sample
+  (lambda (f x)
+    (f x)))
+(display (sample plus4 10))
+(display (sample plus2 10))
