@@ -153,3 +153,28 @@
 (display (not (and #t 4 #f #f 100)))	; => #t
 (display (eq? #t #t)) ; => #t
 (display (eq? #t #f)) ; => #f
+
+(define check_fizzbuzz
+  (lambda (x)
+    (if (= (modulo x 15) 0)
+      "FizzBuzz"
+      (if (= (modulo x 5) 0)
+        "Buzz"
+        (if (= (modulo x 3) 0)
+          "Fizz"
+          x)))))
+
+(define fizzbuzz
+  (lambda (a b)
+    (if (> a b)
+      nil
+      (begin
+        (display (check_fizzbuzz a) " ")
+        (fizzbuzz (+ a 1) b)))))
+
+(newline)
+(newline)
+(display "Fizz Buzz Test")
+(newline)
+(fizzbuzz 1 100)
+(newline)

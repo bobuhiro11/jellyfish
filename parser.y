@@ -23,7 +23,6 @@
 %token NIL
 %token TRUE
 %token FALSE
-%token QUOTE
 %token LEFT_PAREN
 %token RIGHT_PAREN
 
@@ -55,7 +54,6 @@ exp_noeval : INTEGER    { $$ = integer2sexp($1);}     /* no evalute s-expression
                struct s_exp *car = symbol2sexp($1);
                struct s_exp *cdr = cons($2, nil);
                $$ = cons(car,cdr);
-               debug("QUOTE",$$);
           }
         | LEFT_PAREN members_noeval
           {
