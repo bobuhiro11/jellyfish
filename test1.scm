@@ -65,3 +65,5 @@
 (display (<= 1 1))
 (display (>= 1 1))
 (display (> 1 1))
+(display (nil? nil))
+(display (nil? 1))

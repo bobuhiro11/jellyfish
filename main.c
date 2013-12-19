@@ -453,6 +453,19 @@ jf_newline(struct s_exp *args)
 }
 
 static struct s_exp *
+jf_null(struct s_exp *args)
+{
+	struct s_exp *p = args->u.pair.car;
+	struct s_exp *rc;
+
+	if(p == nil)	rc = sexp_t;
+	else 		rc = sexp_f;
+
+	sexp_free(args,1);
+	return rc;
+}
+
+static struct s_exp *
 jf_atom(struct s_exp *args)
 {
 	struct s_exp *p = args->u.pair.car;
@@ -814,8 +827,8 @@ jf_apply_builtin(struct s_exp *func, struct s_exp *args)
 	else if(!strcmp(f_name,"newline"))	rc = jf_newline(args);
 	else if(!strcmp(f_name,"eq?"))		rc = p==q ? sexp_t : sexp_f;
 	else if(!strcmp(f_name,"atom?"))	rc = jf_atom(args);
-	else if(!strcmp(f_name,"nil?"))		rc = p==nil ? sexp_t : sexp_f;
-	else if(!strcmp(f_name,"null?"))	rc = p==nil ? sexp_t : sexp_f;
+	else if(!strcmp(f_name,"nil?"))		rc = jf_null(args);
+	else if(!strcmp(f_name,"null?"))	rc = jf_null(args);
 	else if(!strcmp(f_name,"or"))		rc = jf_or(args);
 	else if(!strcmp(f_name,"and"))		rc = jf_and(args);
 	else if(!strcmp(f_name,"not"))		rc = p == sexp_f ? sexp_t : sexp_f;
