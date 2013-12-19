@@ -764,6 +764,20 @@ jf_define(struct s_exp *args)
 }
 
 struct s_exp *
+_jf_eval(struct s_exp *args)
+{
+	struct s_exp *p, *rc;
+
+	p = args->u.pair.car;
+	rc = jf_eval(p);
+
+	sexp_free(args->u.pair.cdr,1);
+	sexp_free(args,0);
+
+	return rc;
+}
+
+struct s_exp *
 jf_eval(struct s_exp *e)
 {
 	struct s_exp *car, *cdr, *q, *p;
@@ -892,7 +906,7 @@ jf_apply_builtin(struct s_exp *func, struct s_exp *args)
 	else if(!strcmp(f_name,"car"))		rc = jf_car(args);
 	else if(!strcmp(f_name,"cdr"))		rc = jf_cdr(args);
 	else if(!strcmp(f_name,"list"))		rc = jf_list(args);
-	else if(!strcmp(f_name,"eval"))		rc = jf_eval(p);
+	else if(!strcmp(f_name,"eval"))		rc = _jf_eval(args);
 	else if(!strcmp(f_name,"display"))	rc = jf_display(args);
 	else if(!strcmp(f_name,"newline"))	rc = jf_newline(args);
 	else if(!strcmp(f_name,"eq?"))		rc = jf_eq(args);
