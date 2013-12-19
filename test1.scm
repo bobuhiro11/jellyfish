@@ -49,3 +49,9 @@
     (f x)))
 (display (sample plus4 10))
 (display (sample plus2 10))
+
+(begin
+  (display (plus2 -1))
+  (display 2)
+  (display 3)
+  (display 4))

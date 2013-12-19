@@ -326,8 +326,10 @@ jf_begin(struct s_exp *args)
 	struct s_exp *e = args, *q;
 
 	while(e != nil){
+		sexp_free(rc,1);
 		rc = jf_eval(e->u.pair.car);
 		q = e->u.pair.cdr;
+		sexp_free(e,0);
 		e = q;
 	}
 	return rc;
