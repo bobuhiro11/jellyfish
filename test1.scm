@@ -178,3 +178,5 @@
 (newline)
 (fizzbuzz 1 100)
 (newline)
+(define x 10)
+(define x 20)

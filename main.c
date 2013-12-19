@@ -751,6 +751,7 @@ jf_define(struct s_exp *args)
 		s = s->u.pair.car;
 	}
 
+	sexp_free(st_find(global_table, s->u.symbol),1);
 	p = jf_eval(p);
 	st_insert(global_table, s->u.symbol, p);
 
