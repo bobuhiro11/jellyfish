@@ -144,3 +144,6 @@
 
 (display (quote (1 2 3)))
 (display '(1 2 3))
+
+(display (/ 36 2 3))
+(display (modulo 35 4))
