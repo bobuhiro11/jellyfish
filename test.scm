@@ -99,5 +99,5 @@
   (k (+ a b)))
 (define (k* a b k)
   (k (* a b)))
-(display (k+ 1 2 (lambda (x) (k* x 3 return))))
+(display "continuation: " (k+ 1 2 (lambda (x) (k* x 3 return))))
 (newline)

@@ -747,6 +747,7 @@ jf_define(struct s_exp *args)
 		q = s->u.pair.cdr;
 		p = cons(q, cons(p,nil));
 		p = clojure2sexp(p);
+		s->u.pair.cdr = nil;
 		s = s->u.pair.car;
 	}
 
