@@ -52,6 +52,12 @@
 
 (begin
   (display (plus2 -1))
+  (newline)
   (display 2)
+  (newline)
   (display 3)
-  (display 4))
+  (newline)
+  (display 4)
+  (newline))
+
+(display (atom? 1))
