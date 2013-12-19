@@ -88,12 +88,13 @@
 
 (display (mylist 0 1 2))
 
-;(define build_list
-;  (lambda (x)
-;    (if (= x 0)
-;      nil
-;      (build_list x (- x 1)))))
-;(display (build_list 10))
+(define mymylist
+  (lambda (x)
+    (if (= x 0)
+      nil
+      (cons x (mymylist (- x 1))))))
+(display (mymylist 10))
+(newline)
 
 (define  tail
   (lambda (x)
