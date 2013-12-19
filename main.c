@@ -466,6 +466,22 @@ jf_null(struct s_exp *args)
 }
 
 static struct s_exp *
+jf_car(struct s_exp *args)
+{
+	struct s_exp *rc = sexp_copy(args->u.pair.car->u.pair.car);
+	sexp_free(args,1);
+	return rc;
+}
+
+static struct s_exp *
+jf_cdr(struct s_exp *args)
+{
+	struct s_exp *rc = sexp_copy(args->u.pair.car->u.pair.cdr);
+	sexp_free(args,1);
+	return rc;
+}
+
+static struct s_exp *
 jf_atom(struct s_exp *args)
 {
 	struct s_exp *p = args->u.pair.car;
@@ -553,11 +569,15 @@ static struct s_exp *
 jf_multi(struct s_exp *args)
 {
 	struct s_exp *p = args;
+	struct s_exp *q;
 	int s = 1;
 
 	while(p != nil){
 		s *= p->u.pair.car->u.integer;
-		p = p->u.pair.cdr;
+		sexp_free(p->u.pair.car,1);
+		q = p->u.pair.cdr;
+		sexp_free(p,0);
+		p = q;
 	}
 	return integer2sexp(s);
 }
@@ -819,8 +839,8 @@ jf_apply_builtin(struct s_exp *func, struct s_exp *args)
 	else if(!strcmp(f_name,"modulo"))	rc = jf_modulo(args);
 	else if(!strcmp(f_name,"cons"))		rc = jf_cons(args);
 	else if(!strcmp(f_name,"append"))	rc = jf_append(args);
-	else if(!strcmp(f_name,"car"))		rc = p->u.pair.car;
-	else if(!strcmp(f_name,"cdr"))		rc = p->u.pair.cdr;
+	else if(!strcmp(f_name,"car"))		rc = jf_car(args);
+	else if(!strcmp(f_name,"cdr"))		rc = jf_cdr(args);
 	else if(!strcmp(f_name,"list"))		rc = jf_list(args);
 	else if(!strcmp(f_name,"eval"))		rc = jf_eval(p);
 	else if(!strcmp(f_name,"display"))	rc = jf_display(args);

@@ -67,3 +67,16 @@
 (display (> 1 1))
 (display (nil? nil))
 (display (nil? 1))
+
+(display (car (cdr (quote (1 2 3)))))
+
+(define fact
+  (lambda (x)
+    (if (<= x 1)
+      1
+      (* x (fact (- x 1))))))
+(display (fact 3))
+(newline)
+(display (fact 4))
+(newline)
+;(display (append (quote (1 2 3)) (quote (4 5 6))))
