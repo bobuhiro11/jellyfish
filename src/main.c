@@ -102,7 +102,7 @@ sexp_copy(struct s_exp *e)
 }
 
 /*
- * free sexp recursive object if reference count is 0.
+ * free sexp recursive object
  *
  * @rec 1 if recursive, 0 otherwise
  */
@@ -115,11 +115,6 @@ sexp_free(struct s_exp *e, int rec)
 #endif
 	if(is_singleton(e))
 		return;
-
-	/*
-	if(--e->ref >= 1)
-		return;
-	*/
 
 	if(e->type == S_EXP_PAIR){
 		if(rec){
