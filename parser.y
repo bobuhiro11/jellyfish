@@ -34,7 +34,7 @@
 input   :
         | input exp_noeval
           {
-            struct s_exp *e = jf_eval($2);
+            struct s_exp *e = eval($2);
             if(interactive){
               write_sexp(e);
               putc('\n',stdout);

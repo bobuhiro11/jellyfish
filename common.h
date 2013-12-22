@@ -93,10 +93,10 @@ struct s_exp *builtin2sexp(char *s);
 struct s_exp *special2sexp(char *s);
 struct s_exp *clojure2sexp(struct s_exp *e);
 struct s_exp *cons(struct s_exp *car, struct s_exp *cdr);
-struct s_exp *jf_eval(struct s_exp *e);
-struct s_exp *jf_apply_builtin(struct s_exp *func, struct s_exp *args);
-struct s_exp *jf_apply_clojure(struct s_exp *clojure, struct s_exp *args);
+struct s_exp *eval(struct s_exp *e);
 struct s_exp *jf_apply_special(struct s_exp *car, struct s_exp *cdr);
+struct s_exp *jf_apply_clojure(struct s_exp *car, struct s_exp *cdr);
+struct s_exp *jf_apply_builtin(struct s_exp *car, struct s_exp *cdr);
 
 struct symbol_table *st_create();
 struct symbol_table *st_destory(struct symbol_table *stable);

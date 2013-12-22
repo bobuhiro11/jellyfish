@@ -327,7 +327,7 @@ jf_begin(struct s_exp *args)
 
 	while(e != nil){
 		sexp_free(rc,1);
-		rc = jf_eval(e->u.pair.car);
+		rc = eval(e->u.pair.car);
 		q = e->u.pair.cdr;
 		sexp_free(e,0);
 		e = q;
@@ -712,12 +712,12 @@ jf_if(struct s_exp *args)
 	sexp_free(args->u.pair.cdr,0);
 	sexp_free(args,0);
 
-	if(jf_eval(p) == sexp_f){
+	if(eval(p) == sexp_f){
 		sexp_free(q,1);
-		return jf_eval(r);
+		return eval(r);
 	}else{
 		sexp_free(r,1);
-		return jf_eval(q);
+		return eval(q);
 	}
 }
 
@@ -752,7 +752,7 @@ jf_define(struct s_exp *args)
 	}
 
 	sexp_free(st_find(global_table, s->u.symbol),1);
-	p = jf_eval(p);
+	p = eval(p);
 	st_insert(global_table, s->u.symbol, p);
 
 	sexp_free(args->u.pair.car,1);
@@ -764,12 +764,12 @@ jf_define(struct s_exp *args)
 }
 
 struct s_exp *
-_jf_eval(struct s_exp *args)
+js_eval(struct s_exp *args)
 {
 	struct s_exp *p, *rc;
 
 	p = args->u.pair.car;
-	rc = jf_eval(p);
+	rc = eval(p);
 
 	sexp_free(args->u.pair.cdr,1);
 	sexp_free(args,0);
@@ -778,7 +778,7 @@ _jf_eval(struct s_exp *args)
 }
 
 struct s_exp *
-jf_eval(struct s_exp *e)
+eval(struct s_exp *e)
 {
 	struct s_exp *car, *cdr, *q, *p;
 
@@ -804,7 +804,7 @@ jf_eval(struct s_exp *e)
 	cdr = e->u.pair.cdr;
 	sexp_free(e,0);
 
-	q = jf_eval(car);
+	q = eval(car);
 	car = q;
 
 	switch(car->type){
@@ -847,7 +847,7 @@ jf_apply_clojure(struct s_exp *clojure, struct s_exp *args)
 	e2 = args;
 
 	while(e1 && e2){
-		st_insert(p, e1->u.pair.car->u.symbol,jf_eval(e2->u.pair.car));
+		st_insert(p, e1->u.pair.car->u.symbol,eval(e2->u.pair.car));
 
 		q = e1->u.pair.cdr;
 		sexp_free(e1->u.pair.car,1);
@@ -870,7 +870,7 @@ jf_apply_clojure(struct s_exp *clojure, struct s_exp *args)
 	 * the clojure call does'nt stop.(especially a case of recursive call)
 	 */
 	rc = sexp_copy(clojure->u.pair.cdr->u.pair.car);
-	rc = jf_eval(rc);
+	rc = eval(rc);
 
 	p = global_table;				/* remove new scope */
 	global_table = global_table->next;
@@ -892,7 +892,7 @@ jf_apply_builtin(struct s_exp *func, struct s_exp *args)
 	/* eval args */
 	p = args;
 	while(p != nil){
-		p->u.pair.car = jf_eval(p->u.pair.car);
+		p->u.pair.car = eval(p->u.pair.car);
 		p = p->u.pair.cdr;
 	}
 
@@ -906,7 +906,7 @@ jf_apply_builtin(struct s_exp *func, struct s_exp *args)
 	else if(!strcmp(f_name,"car"))		rc = jf_car(args);
 	else if(!strcmp(f_name,"cdr"))		rc = jf_cdr(args);
 	else if(!strcmp(f_name,"list"))		rc = jf_list(args);
-	else if(!strcmp(f_name,"eval"))		rc = _jf_eval(args);
+	else if(!strcmp(f_name,"eval"))		rc = js_eval(args);
 	else if(!strcmp(f_name,"display"))	rc = jf_display(args);
 	else if(!strcmp(f_name,"newline"))	rc = jf_newline(args);
 	else if(!strcmp(f_name,"eq?"))		rc = jf_eq(args);
