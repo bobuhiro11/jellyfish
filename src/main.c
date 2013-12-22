@@ -58,91 +58,65 @@ sexp_alloc()
 struct s_exp *
 sexp_copy(struct s_exp *e)
 {
+	int len;
+	struct s_exp *p;
+
 	if(is_singleton(e))
 		return e;
 
-	struct s_exp *p = sexp_alloc();
-	int len;
+	p = sexp_alloc();
+	p->type = e->type;
 
-	if(e->type == S_EXP_PAIR){
-		p->type = S_EXP_PAIR;
-		p->u.pair.car = sexp_copy(e->u.pair.car);
-		p->u.pair.cdr = sexp_copy(e->u.pair.cdr);
-	}else if(e->type == S_EXP_INTEGER){
-		p->type = S_EXP_INTEGER;
-		p->u.integer = e->u.integer;
-	}else if(e->type == S_EXP_CHARACTER){
-		p->type = S_EXP_CHARACTER;
-		p->u.character = e->u.character;
-	}else if(e->type == S_EXP_STRING){
-		p->type = S_EXP_STRING;
-		p->u.obj = e->u.obj;
-		len = strlen( e->u.obj );
-		p->u.obj = malloc(len+1);
-		memset(p->u.obj, 0, len+1);
-		strncpy(p->u.obj, e->u.obj, len);
-	}else if(e->type == S_EXP_SYMBOL){
-		p->type = S_EXP_SYMBOL;
-		len = strlen( e->u.obj );
-		p->u.obj = malloc(len+1);
-		memset(p->u.obj, 0, len+1);
-		strncpy(p->u.obj, e->u.obj, len);
-	}else if(e->type == S_EXP_BUILTIN){
-		p->type = S_EXP_BUILTIN;
-		p->u.obj = e->u.obj;
-	}else if(e->type == S_EXP_SPECIAL){
-		p->type = S_EXP_SPECIAL;
-		p->u.obj = e->u.obj;
-	}else if(e->type == S_EXP_CLOJURE){
-		p->type = S_EXP_CLOJURE;
-		p->u.pair.car = sexp_copy(e->u.pair.car);
-		p->u.pair.cdr = sexp_copy(e->u.pair.cdr);
+	switch(e->type){
+		case S_EXP_CHARACTER:
+			p->u.character = e->u.character;
+			break;
+		case S_EXP_INTEGER:
+			p->u.integer = e->u.integer;
+			break;
+		case S_EXP_PAIR:
+		case S_EXP_CLOJURE:
+			p->u.pair.car = sexp_copy(e->u.pair.car);
+			p->u.pair.cdr = sexp_copy(e->u.pair.cdr);
+			break;
+		case S_EXP_STRING:
+		case S_EXP_SYMBOL:
+			len = strlen( e->u.obj );
+			p->u.obj = malloc(len+1);
+			memset(p->u.obj, 0, len+1);
+			strncpy(p->u.obj, e->u.obj, len);
+			break;
+		case S_EXP_BUILTIN:
+		case S_EXP_SPECIAL:
+			p->u.obj = e->u.obj;
+			break;
 	}
+
 	return p;
 }
 
 /*
- * free sexp recursive object
+ * free sexp object
  *
  * @rec 1 if recursive, 0 otherwise
  */
 void
 sexp_free(struct s_exp *e, int rec)
 {
-
 #ifdef NOFREE
 	return;
 #endif
 	if(is_singleton(e))
 		return;
 
-	if(e->type == S_EXP_PAIR){
-		if(rec){
-			sexp_free(e->u.pair.car,1);
-			sexp_free(e->u.pair.cdr,1);
-		}
-		free(e);
-	}else if(e->type == S_EXP_CLOJURE){
-		if(rec){
-			sexp_free(e->u.pair.car,1);
-			sexp_free(e->u.pair.cdr,1);
-		}
-		free(e);
-	}else if(e->type == S_EXP_INTEGER){
-		free(e);
-	}else if(e->type == S_EXP_CHARACTER){
-		free(e);
-	}else if(e->type == S_EXP_STRING){
+	if(e->type == S_EXP_STRING || e->type == S_EXP_SYMBOL)
 		free(e->u.obj);
-		free(e);
-	}else if(e->type == S_EXP_SYMBOL){
-		free(e->u.obj);
-		free(e);
-	}else if(e->type == S_EXP_BUILTIN){
-		free(e);
-	}else if(e->type == S_EXP_SPECIAL){
-		free(e);
+	else if((e->type == S_EXP_PAIR || e->type == S_EXP_CLOJURE) && rec){
+		sexp_free(e->u.pair.car,1);
+		sexp_free(e->u.pair.cdr,1);
 	}
+
+	free(e);
 }
 
 /*
@@ -632,7 +606,7 @@ jf_eq(struct s_exp *args)
 	return rc;
 }
 
-int
+static int
 _equal(struct s_exp *p, struct s_exp *q)
 {
 	int rc;
