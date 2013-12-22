@@ -49,7 +49,6 @@ sexp_alloc()
 	struct s_exp *rc =  (struct s_exp*)malloc(sizeof(struct s_exp));
 	if(!rc)
 		return NULL;
-	//rc->ref = 1;
 	return rc;
 }
 
@@ -99,29 +98,8 @@ sexp_copy(struct s_exp *e)
 		p->u.pair.car = sexp_copy(e->u.pair.car);
 		p->u.pair.cdr = sexp_copy(e->u.pair.cdr);
 	}
-	//p->ref=1;
 	return p;
 }
-
-/*
- * ref new sexp object.
- * return sexp object if success, NULL otherwise.
- */
-/*
-struct s_exp *
-sexp_ref(struct s_exp *e)
-{
-	if(is_singleton(e))
-		return;
-
-	e->ref++;
-	if(e->type == S_EXP_PAIR || e->type == S_EXP_CLOJURE){
-		sexp_ref(e->u.pair.car);
-		sexp_ref(e->u.pair.cdr);
-	}
-	return e;
-}
-*/
 
 /*
  * free sexp recursive object if reference count is 0.
