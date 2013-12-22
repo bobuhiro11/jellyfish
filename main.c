@@ -466,6 +466,14 @@ jf_null(struct s_exp *args)
 }
 
 static struct s_exp *
+jf_symbols(struct s_exp *args)
+{
+	st_dump(global_table);
+	sexp_free(args,1);
+	return sexp_undef;
+}
+
+static struct s_exp *
 jf_car(struct s_exp *args)
 {
 	struct s_exp *rc = sexp_copy(args->u.pair.car->u.pair.car);
@@ -825,7 +833,7 @@ jf_apply_special(struct s_exp *car, struct s_exp *cdr)
 	if(!strcmp(car->u.symbol, "quote"))		rc = jf_quote(cdr);
 	else if(!strcmp(car->u.symbol,"if"))		rc = jf_if(cdr);
 	else if(!strcmp(car->u.symbol,"define"))	rc = jf_define(cdr);
-	else if(!strcmp(car->u.symbol,"symbols")){	rc = st_dump(global_table); sexp_free(cdr,1);}
+	else if(!strcmp(car->u.symbol,"symbols"))	rc = jf_symbols(cdr);
 	else if(!strcmp(car->u.symbol,"lambda"))	rc = clojure2sexp(cdr);
 	else if(!strcmp(car->u.symbol,"begin"))		rc = jf_begin(cdr);
 
