@@ -2,7 +2,7 @@
 /**********************************************
  * lexer.l
  **********************************************/
-#include "common.h"
+#include "../include/common.h"
 
 static int paren_num=0;
 

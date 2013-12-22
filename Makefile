@@ -1,35 +1,30 @@
 CC     				:= gcc
-TARGET 				:= jellyfish
-TARGET_NOFREE := jellyfish_nofree # no memory management
-PARSER 				:= parser
-LEXER  				:= lexer
+#CFLAGS 				:= -Wall
 BISON  				:= bison
-FLEX   				:= flex
-MAIN   				:= main
-HASH	 				:= hashtable
-SYMBOL 				:= symbol_table
-CLAGS 				:= -O0
+FLEX 					:= flex
+TARGET 				:= bin/jellyfish
 
-all : $(TARGET) $(TARGET_NOFREE)
+SOURCES_C 		:= $(wildcard src/*.c)
+SOURCES_C 		+= src/parser.c src/lexer.c
+
+TEST 					:= test/test_integ.scm
+
+all : $(TARGET)
 
 run : $(TARGET)
-	./$(TARGET)
+	$(TARGET)
 
-test : $(TARGET_NOFREE) test.scm
-	./$(TARGET_NOFREE) test.scm
+test : $(TARGET) $(TEST)
+	$(TARGET) $(TEST)
 
-$(TARGET_NOFREE) : $(PARSER).c $(LEXER).c $(MAIN).c $(HASH).c $(SYMBOL).c
-	$(CC) -g -o $(CFLAGS) $(TARGET_NOFREE) -DNOFREE $(PARSER).c $(LEXER).c $(MAIN).c $(HASH).c $(SYMBOL).c
+$(TARGET) : $(SOURCES_C)
+	$(CC) -g -o $(CFLAGS) $(TARGET) $(SOURCES_C)
 
-$(TARGET) : $(PARSER).c $(LEXER).c $(MAIN).c $(HASH).c $(SYMBOL).c
-	$(CC) -g -o $(CFLAGS) $(TARGET) $(PARSER).c $(LEXER).c $(MAIN).c $(HASH).c $(SYMBOL).c
+src/parser.c : src/parser.y
+	$(BISON) -d src/parser.y
 
-$(PARSER).c : $(PARSER).y
-	$(BISON) -o $(PARSER).c -d $(PARSER).y
-
-# -I : special interactive scanner. pre-fetch token only for needed.
-$(LEXER).c : $(LEXER).l
-	$(FLEX) -o $(LEXER).c -I $(LEXER).l
+src/lexer.c : src/lexer.l
+	$(FLEX) -o src/lexer.c -I src/lexer.l
 
 clean :
-	rm $(TARGET) $(TARGET_NOFREE) $(PARSER).c $(PARSER).h $(LEXER).c
+	rm src/lexer.c src/parser.c include/parser.h bin/*

@@ -1,4 +1,4 @@
-#include "common.h"
+#include "../include/common.h"
 
 /*
  * Murmurhash2 By Austin Appleby
