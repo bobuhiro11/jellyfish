@@ -1,7 +1,7 @@
-jellyfish
-jellyfish_nofree
+bin/jellyfish
+bin/jellyfish_nofree
 *.dSYM
-parser.c
-parser.h
-lexer.c
+src/parser.c
+src/lexer.c
+include/parser.h
 *.swp
