@@ -76,23 +76,23 @@ sexp_copy(struct s_exp *e)
 		p->u.character = e->u.character;
 	}else if(e->type == S_EXP_STRING){
 		p->type = S_EXP_STRING;
-		p->u.string = e->u.string;
-		len = strlen( e->u.string );
-		p->u.string = malloc(len+1);
-		memset(p->u.string, 0, len+1);
-		strncpy(p->u.string, e->u.string, len);
+		p->u.obj = e->u.obj;
+		len = strlen( e->u.obj );
+		p->u.obj = malloc(len+1);
+		memset(p->u.obj, 0, len+1);
+		strncpy(p->u.obj, e->u.obj, len);
 	}else if(e->type == S_EXP_SYMBOL){
 		p->type = S_EXP_SYMBOL;
-		len = strlen( e->u.symbol );
-		p->u.symbol = malloc(len+1);
-		memset(p->u.symbol, 0, len+1);
-		strncpy(p->u.symbol, e->u.symbol, len);
+		len = strlen( e->u.obj );
+		p->u.obj = malloc(len+1);
+		memset(p->u.obj, 0, len+1);
+		strncpy(p->u.obj, e->u.obj, len);
 	}else if(e->type == S_EXP_BUILTIN){
 		p->type = S_EXP_BUILTIN;
-		p->u.symbol = e->u.symbol;
+		p->u.obj = e->u.obj;
 	}else if(e->type == S_EXP_SPECIAL){
 		p->type = S_EXP_SPECIAL;
-		p->u.special = e->u.special;
+		p->u.obj = e->u.obj;
 	}else if(e->type == S_EXP_CLOJURE){
 		p->type = S_EXP_CLOJURE;
 		p->u.pair.car = sexp_copy(e->u.pair.car);
@@ -138,10 +138,10 @@ sexp_free(struct s_exp *e, int rec)
 	}else if(e->type == S_EXP_CHARACTER){
 		free(e);
 	}else if(e->type == S_EXP_STRING){
-		free(e->u.string);
+		free(e->u.obj);
 		free(e);
 	}else if(e->type == S_EXP_SYMBOL){
-		free(e->u.symbol);
+		free(e->u.obj);
 		free(e);
 	}else if(e->type == S_EXP_BUILTIN){
 		free(e);
@@ -182,7 +182,7 @@ symbol2sexp(char *s)
 {
 	struct s_exp *e =  sexp_alloc();
 	e->type = S_EXP_SYMBOL;
-	(e->u).symbol = s;
+	e->u.obj = s;
 	return e;
 }
 
@@ -194,7 +194,7 @@ string2sexp(char *s)
 {
 	struct s_exp *e =  sexp_alloc();
 	e->type = S_EXP_STRING;
-	(e->u).string = s;
+	e->u.obj = s;
 	return e;
 }
 
@@ -206,7 +206,7 @@ builtin2sexp(char *s)
 {
 	struct s_exp *e =  sexp_alloc();
 	e->type = S_EXP_BUILTIN;
-	(e->u).builtin = s;
+	e->u.obj = s;
 	return e;
 }
 
@@ -218,7 +218,7 @@ special2sexp(char *s)
 {
 	struct s_exp *e =  sexp_alloc();
 	e->type = S_EXP_SPECIAL;
-	(e->u).special = s;
+	e->u.obj = s;
 	return e;
 }
 
@@ -387,10 +387,10 @@ _write_sexp(struct s_exp *e, int d)
 	else if(e == sexp_f)			printf("#f");
 	else if(e->type == S_EXP_INTEGER)	printf("%d",e->u.integer);
 	else if(e->type == S_EXP_CHARACTER)	printf("%c",e->u.character);
-	else if(e->type == S_EXP_STRING)	printf("%s",e->u.string);
-	else if(e->type == S_EXP_SYMBOL)	printf("%s",e->u.symbol);
-	else if(e->type == S_EXP_BUILTIN)	printf("%s",e->u.builtin);
-	else if(e->type == S_EXP_SPECIAL)	printf("%s",e->u.special);
+	else if(e->type == S_EXP_STRING)	printf("%s",e->u.obj);
+	else if(e->type == S_EXP_SYMBOL)	printf("%s",e->u.obj);
+	else if(e->type == S_EXP_BUILTIN)	printf("%s",e->u.obj);
+	else if(e->type == S_EXP_SPECIAL)	printf("%s",e->u.obj);
 	else if(e->type == S_EXP_CLOJURE)	_write_list(e,0);
 	else if(is_list(e))			_write_list(e,0);
 	else					_write_pair(e);
@@ -637,6 +637,53 @@ jf_eq(struct s_exp *args)
 	return rc;
 }
 
+int
+_equal(struct s_exp *p, struct s_exp *q)
+{
+	int rc;
+	int pt, qt;
+
+	if(p==nil || p==sexp_t || p==sexp_f || p==sexp_undef){
+		return p==q ? 1 : 0;
+	}
+
+	pt = p->type;
+	qt = q->type;
+
+	if(pt != qt)
+		rc = 1;
+	else if(pt == S_EXP_PAIR || pt == S_EXP_CLOJURE){
+		if(p->u.pair.cdr == nil && q->u.pair.cdr == nil)
+			rc = _equal(p->u.pair.car, q->u.pair.car);
+		else if(p->u.pair.cdr != nil && q->u.pair.cdr != nil)
+			rc = _equal(p->u.pair.car, q->u.pair.car)
+				&& _equal(p->u.pair.cdr, q->u.pair.cdr);
+		else
+			rc = 0;
+	}else if(pt == S_EXP_INTEGER)
+		rc = p->u.integer == q->u.integer;
+	else if(pt == S_EXP_CHARACTER)
+		rc = p->u.character == q->u.character;
+	else
+		rc = !strcmp(p->u.obj,q->u.obj);
+
+	return rc;
+}
+
+static struct s_exp *
+jf_equal(struct s_exp *args)
+{
+	struct s_exp *p, *q, *rc;
+
+	p = args->u.pair.car;
+	q = args->u.pair.cdr->u.pair.car;
+
+	rc = _equal(p,q) ? sexp_t : sexp_f;
+	sexp_free(args,1);
+
+	return rc;
+}
+
 static struct s_exp *
 jf_and(struct s_exp *args)
 {
@@ -737,9 +784,9 @@ jf_define(struct s_exp *args)
 		s = s->u.pair.car;
 	}
 
-	sexp_free(st_find(global_table, s->u.symbol),1);
+	sexp_free(st_find(global_table, s->u.obj),1);
 	p = eval(p);
-	st_insert(global_table, s->u.symbol, p);
+	st_insert(global_table, s->u.obj, p);
 
 	sexp_free(args->u.pair.car,1);
 	sexp_free(args->u.pair.cdr->u.pair.cdr,1);
@@ -780,7 +827,7 @@ eval(struct s_exp *e)
 		case S_EXP_CLOJURE:
 			return e;
 		case S_EXP_SYMBOL:
-			q = st_find(global_table, e->u.symbol);
+			q = st_find(global_table, e->u.obj);
 			p = sexp_copy(q);
 			sexp_free(e,1);
 			return p;
@@ -808,12 +855,12 @@ jf_apply_special(struct s_exp *car, struct s_exp *cdr)
 {
 	struct s_exp *rc = nil;
 
-	if(!strcmp(car->u.symbol, "quote"))		rc = jf_quote(cdr);
-	else if(!strcmp(car->u.symbol,"if"))		rc = jf_if(cdr);
-	else if(!strcmp(car->u.symbol,"define"))	rc = jf_define(cdr);
-	else if(!strcmp(car->u.symbol,"symbols"))	rc = jf_symbols(cdr);
-	else if(!strcmp(car->u.symbol,"lambda"))	rc = clojure2sexp(cdr);
-	else if(!strcmp(car->u.symbol,"begin"))		rc = jf_begin(cdr);
+	if(!strcmp(car->u.obj, "quote"))		rc = jf_quote(cdr);
+	else if(!strcmp(car->u.obj,"if"))		rc = jf_if(cdr);
+	else if(!strcmp(car->u.obj,"define"))		rc = jf_define(cdr);
+	else if(!strcmp(car->u.obj,"symbols"))		rc = jf_symbols(cdr);
+	else if(!strcmp(car->u.obj,"lambda"))		rc = clojure2sexp(cdr);
+	else if(!strcmp(car->u.obj,"begin"))		rc = jf_begin(cdr);
 
 	sexp_free(car,1);
 
@@ -833,7 +880,7 @@ jf_apply_clojure(struct s_exp *clojure, struct s_exp *args)
 	e2 = args;
 
 	while(e1 && e2){
-		st_insert(p, e1->u.pair.car->u.symbol,eval(e2->u.pair.car));
+		st_insert(p, e1->u.pair.car->u.obj,eval(e2->u.pair.car));
 
 		q = e1->u.pair.cdr;
 		sexp_free(e1->u.pair.car,1);
@@ -871,7 +918,7 @@ jf_apply_clojure(struct s_exp *clojure, struct s_exp *args)
 struct s_exp *
 jf_apply_builtin(struct s_exp *func, struct s_exp *args)
 {
-	char *f_name = func->u.builtin;
+	char *f_name = func->u.obj;
 	struct s_exp *p, *q, *rc=nil;
 
 
@@ -896,6 +943,7 @@ jf_apply_builtin(struct s_exp *func, struct s_exp *args)
 	else if(!strcmp(f_name,"display"))	rc = jf_display(args);
 	else if(!strcmp(f_name,"newline"))	rc = jf_newline(args);
 	else if(!strcmp(f_name,"eq?"))		rc = jf_eq(args);
+	else if(!strcmp(f_name,"equal?"))	rc = jf_equal(args);
 	else if(!strcmp(f_name,"atom?"))	rc = jf_atom(args);
 	else if(!strcmp(f_name,"nil?"))		rc = jf_null(args);
 	else if(!strcmp(f_name,"null?"))	rc = jf_null(args);
@@ -939,9 +987,5 @@ main(int argc, char **argv)
 	fclose(yyin);
 	yylex_destroy();
 	st_destory(global_table);
-	printf("\n\n");
-	printf("**************\n");
-	printf("*  Good bye. *\n");
-	printf("**************\n");
 	return 0;
 }

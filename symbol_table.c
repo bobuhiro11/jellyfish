@@ -87,6 +87,7 @@ st_init(struct symbol_table *stable)
 	st_insert(stable, "newline", builtin2sexp("newline"));
 
 	st_insert(stable, "eq?", builtin2sexp("eq?"));
+	st_insert(stable, "equal?", builtin2sexp("equal?"));
 	st_insert(stable, "atom?", builtin2sexp("atom?"));
 	st_insert(stable, "nil?", builtin2sexp("nil?"));
 	st_insert(stable, "null?", builtin2sexp("null?"));

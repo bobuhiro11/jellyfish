@@ -90,6 +90,36 @@
         (display (check_fizzbuzz a) " ")
         (fizzbuzz (+ a 1) b)))))
 
+;
+; element
+;
+(define (element x list)
+  (if (null? list)
+    #f
+    (if (equal? x (car list))
+      #t
+      (element x (cdr list)))))
+
+;
+; union
+;
+(define (union x y)
+  (if (nil? x)
+    y
+    (if (element (car x) y)
+      (union (cdr x) y)
+      (cons (car x) (union (cdr x) y)))))
+
+;
+; intersect
+;
+(define (intersect x y)
+  (if (nil? x)
+    '()
+    (if (element (car x) y)
+      (cons (car x) (intersect (cdr x) y))
+      (intersect (cdr x) y))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; function call
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -104,4 +134,12 @@
 (define x '(gcd 15 21))
 (display x " => " (eval x)) (newline)
 (define x '(quicksort '(32 77 70 21 3 2 73)))
+(display x " => " (eval x)) (newline)
+(define x '(element '50 '(32 77 70 21 3 2 73)))
+(display x " => " (eval x)) (newline)
+(define x '(element '70 '(32 77 70 21 3 2 73)))
+(display x " => " (eval x)) (newline)
+(define x '(union '(a b e f) '(a c f)))
+(display x " => " (eval x)) (newline)
+(define x '(intersect '(a b e f) '(a c f)))
 (display x " => " (eval x)) (newline)

@@ -33,7 +33,7 @@
 #define S_EXP_CHARACTER	3
 #define S_EXP_STRING 	4
 #define S_EXP_SYMBOL	5
-#define S_EXP_BUILTIN	6 
+#define S_EXP_BUILTIN	6
 #define S_EXP_SPECIAL	7
 #define S_EXP_CLOJURE	8
 
@@ -51,10 +51,7 @@ struct s_exp{
 		struct pair pair;
 		int integer;
 		char character;
-		char *string;
-		char *symbol;
-		char *builtin;
-		char *special;
+		char *obj;
 	}u;
 };
 
@@ -80,7 +77,6 @@ void write_sexp(struct s_exp *e);
 struct s_exp *display(struct s_exp *e);
 
 struct s_exp *sexp_alloc();
-//struct s_exp *sexp_ref(struct s_exp *e);
 struct s_exp *sexp_copy(struct s_exp *e);
 void sexp_free(struct s_exp *e, int rec);
 
