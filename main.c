@@ -380,20 +380,20 @@ _write_pair(struct s_exp *e){
 static void
 _write_sexp(struct s_exp *e, int d)
 {
-
 	if(e == nil)				printf("nil");
 	else if(e == sexp_undef)		printf("undef");
 	else if(e == sexp_t)			printf("#t");
 	else if(e == sexp_f)			printf("#f");
 	else if(e->type == S_EXP_INTEGER)	printf("%d",e->u.integer);
 	else if(e->type == S_EXP_CHARACTER)	printf("%c",e->u.character);
-	else if(e->type == S_EXP_STRING)	printf("%s",e->u.obj);
-	else if(e->type == S_EXP_SYMBOL)	printf("%s",e->u.obj);
-	else if(e->type == S_EXP_BUILTIN)	printf("%s",e->u.obj);
-	else if(e->type == S_EXP_SPECIAL)	printf("%s",e->u.obj);
+	else if(e->type == S_EXP_STRING
+		|| e->type == S_EXP_SYMBOL
+		|| e->type == S_EXP_BUILTIN
+		|| e->type == S_EXP_SPECIAL)	printf("%s",e->u.obj);
 	else if(e->type == S_EXP_CLOJURE)	_write_list(e,0);
 	else if(is_list(e))			_write_list(e,0);
 	else					_write_pair(e);
+
 
 	if(!d)					_write_type(e);
 }
