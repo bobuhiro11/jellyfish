@@ -48,7 +48,7 @@ exp_noeval : INTEGER    { $$ = integer2sexp($1);}     /* no evalute s-expression
         | SYMBOL        { $$ = symbol2sexp($1);}
         | STRING        { $$ = string2sexp($1);}
         | NIL           { $$ = nil;}
-	| TRUE		      { $$ = sexp_t;}
+        | TRUE		      { $$ = sexp_t;}
         | FALSE		      { $$ = sexp_f;}
         | QUOTE exp_noeval
           {

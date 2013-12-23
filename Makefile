@@ -28,4 +28,4 @@ src/lexer.c : src/lexer.l
 	$(FLEX) -o src/lexer.c -I src/lexer.l
 
 clean :
-	rm src/lexer.c src/parser.c include/parser.h bin/*
+	rm -rf src/lexer.c src/parser.c include/parser.h bin/*
