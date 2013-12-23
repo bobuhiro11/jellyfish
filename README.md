@@ -42,6 +42,12 @@ $ make run      # あるいは，$ bin/jellyfish
 $ bin/jellyfish filename.scm
 ```
 
+Todo
+-------
+
+- 意味解析
+- マクロ
+
 License
 -------
 
