@@ -22,7 +22,7 @@ $(TARGET) : $(SOURCES_C)
 	$(CC) $(CFLAGS) -o $(TARGET) $(SOURCES_C)
 
 src/parser.c : src/parser.y
-	$(BISON) -d src/parser.y
+	$(BISON) -d src/parser.y -o src/parser.c --defines="include/parser.h"
 
 src/lexer.c : src/lexer.l
 	$(FLEX) -o src/lexer.c -I src/lexer.l

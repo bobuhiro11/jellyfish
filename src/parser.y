@@ -4,8 +4,6 @@
  **********************************************/
 #include "../include/common.h"
 %}
-%output  "src/parser.c"
-%defines "include/parser.h"
 
 /* type of grammar,token */
 %union {
