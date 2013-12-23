@@ -3,6 +3,7 @@ jellyfish
 
 小さなlisp処理系です．
 まだRnRSに従っていません．
+現状では[こんなプログラム](https://github.com/bobuhiro11/jellyfish/blob/master/test/test_integ.scm)が動いてくれます．
 
 Requires
 --------
@@ -35,7 +36,7 @@ $ make test     # あるいは，$ bin/jellyfish test/test_integ.scm
 $ make run      # あるいは，$ bin/jellyfish
 ```
 
-- lispソースコードの実行
+- schemeソースコードの実行
 
 ```
 $ bin/jellyfish filename.scm
