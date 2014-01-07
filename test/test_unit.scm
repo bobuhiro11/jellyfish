@@ -106,3 +106,8 @@
 (display (equal? (lambda (x) (+ x 2)) (lambda (x) (+ x 1))))
 (display (equal? (lambda (x) (+ x 1)) (lambda (x) (+ x 1))))
 (newline)
+
+(define str_list '(#\a #\b #\c))
+(define str (list->string str_list))
+(display str)
+(newline)

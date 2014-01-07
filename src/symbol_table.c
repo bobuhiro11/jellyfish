@@ -100,4 +100,6 @@ st_init(struct symbol_table *stable)
 	st_insert(stable, "<", builtin2sexp("<"));
 	st_insert(stable, "<=", builtin2sexp("<="));
 	st_insert(stable, ">=", builtin2sexp(">="));
+
+	st_insert(stable, "list->string",builtin2sexp("list->string"));
 }

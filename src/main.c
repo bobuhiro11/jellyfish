@@ -374,6 +374,31 @@ write_sexp(struct s_exp *e)
 }
 
 static struct s_exp *
+jf_list2string(struct s_exp *args)
+{
+	int n=0;
+	char *str;
+	struct s_exp *p = args->u.pair.car;
+
+	while(p!=nil){
+		n++;
+		p = p->u.pair.cdr;
+	}
+	str = (char*)malloc(sizeof(n+1));
+
+	p = args->u.pair.car;
+	n = 0;
+	while(p!=nil){
+		str[n++] = p->u.pair.car->u.character;
+		p = p->u.pair.cdr;
+	}
+	str[n] = '\0';
+
+	sexp_free(args,1);
+	return string2sexp(str);
+}
+
+static struct s_exp *
 jf_display(struct s_exp *args)
 {
 	struct s_exp *p = args, *q;
@@ -924,6 +949,7 @@ jf_apply_builtin(struct s_exp *func, struct s_exp *args)
 	else if(!strcmp(f_name,"<"))		rc = jf_cmp(args, CMP_LESS);
 	else if(!strcmp(f_name,"<="))		rc = jf_cmp(args, CMP_LESS_EQUAL);
 	else if(!strcmp(f_name,">="))		rc = jf_cmp(args, CMP_GREATER_EQUAL);
+	else if(!strcmp(f_name,"list->string"))	rc = jf_list2string(args);
 
 	sexp_free(func, 1);
 
