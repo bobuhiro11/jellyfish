@@ -40,4 +40,8 @@ static int paren_num=0;
   strncpy(yylval.t_string, yytext+1, n-2);
   return STRING;
 }
+"#\\". {
+  yylval.t_char = yytext[2];
+  return CHARACTER;
+}
 %%
